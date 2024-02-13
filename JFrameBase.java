@@ -22,14 +22,32 @@ public class JFrameBase extends JFrame {
   //Canvas canvas=new Canvas(w,h);
     public JFrameBase(){
       i=new BufferedImage(w,h,BufferedImage.TYPE_INT_RGB);
-      JPanel p=new JPanel(){protected void paintComponent(Graphics g) {
-        super.paintComponent(g);Graphics2D d=(Graphics2D)g.create();
-        d.scale(s,s);d.drawImage(i,0,0,this);d.dispose();}};
-      setContentPane(p);setSize(w*s1+100,h*s1+100);setVisible(true);
+      JPanel p=new JPanel();
+      //JPanel p=new JPanel(){protected void paintComponent(Graphics g) {
+        //super.paintComponent(g);
+        //Graphics2D d;d=(Graphics2D)g.create();
+        //d.scale(s,s);
+        //d.drawImage(i,0,0,this);
+        //d.drawLine(10,10,100,200);
+        //d.dispose();
+      //}};
+      
+      setContentPane(p);setSize(w,h);setVisible(true);
       setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);setLayout(null);
-      Graphics2D g=i.createGraphics();g.setColor(Color.WHITE);
-      g.fillRect(0,0,w*s1,h*s1);g.dispose();p.setFocusable(true);
+      Graphics2D g=i.createGraphics();
+      g.setColor(Color.RED);
+      g.fillRect(0,0,w*s1,h*s1);
+      g.drawLine(10,10,100,200);
+      g.dispose();
+      p.setFocusable(true);
       p.requestFocusInWindow();
+      Graphics2D e=(Graphics2D)(p.getGraphics().create());
+      e.drawLine(10,10,200,200);
+      p.getGraphics().drawLine(10,10,300,200);;
+      repaint();
+      p.repaint();
+      p.paint(e);
+      super.paintComponents(e);
 
       fullDraw();
       ScheduledExecutorService executor=Executors.newScheduledThreadPool(1);
@@ -46,6 +64,5 @@ public class JFrameBase extends JFrame {
       }
 
     public static void main(String[]args){
-      //SwingUtilities.invokeLater(()->new Main());}
-  }
+      SwingUtilities.invokeLater(()->new JFrameBase());}
 }
