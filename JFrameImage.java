@@ -28,7 +28,7 @@ public class JFrameImage
   Ellipse2D.Double white2 = new Ellipse2D.Double(112.5, 112.5, 175, 175);
   Ellipse2D.Double ring1 = new Ellipse2D.Double(150, 150, 100, 100);
 
-  g2.setColor(Color.BLACK);
+  g2.setColor(Color.RED);
   g2.fill(ring3);
   g2.setColor(Color.WHITE);
   g2.fill(white3);
