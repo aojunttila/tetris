@@ -1,5 +1,10 @@
-package Utils;
+//package Utils;
+
+import java.lang.instrument.Instrumentation;
+
 public class Util {
+    private static Instrumentation instrumentation;
+
     long startTime;
     long[]startTimes=new long[256];
 
@@ -29,6 +34,13 @@ public class Util {
         return duration;
     }
 
+    public static void getObjectSize(Object obj){
+        if (instrumentation == null) {
+            throw new IllegalStateException("Instrumentation not initialized. "
+                    + "Make sure to start the JVM with the -javaagent option.");
+        }
+        System.out.println(instrumentation.getObjectSize(obj));
+    }
 
 
 
