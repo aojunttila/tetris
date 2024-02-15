@@ -23,18 +23,20 @@ public class JFrameBase extends JFrame {
     public JFrameBase(){
       i=new BufferedImage(w,h,BufferedImage.TYPE_INT_RGB);
       JFrame frame=new JFrame();
-      JFrameCompBase comp=new JFrameCompBase();
+      JPanel panel=new JPanel();
+      JFrameCompBase comp=new JFrameCompBase(panel);
       frame.setSize(w,h);
-      frame.add(comp);
+      //frame.add(comp);
       //p.getGraphics().drawLine(10,10, 100, 200);
       frame.setVisible(true);
       //setContentPane(p);setSize(w,h);setVisible(true);
-      setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);setLayout(null);
-      Graphics2D g=i.createGraphics();
-      g.setColor(Color.RED);
-      g.fillRect(0,0,w*s1,h*s1);
-      g.drawLine(10,10,100,200);
-      g.dispose();
+      //setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);setLayout(null);
+      panel.setVisible(true);
+      panel.setBackground(Color.RED);
+      panel.setLayout(new OverlayLayout(panel));
+      panel.add(comp);
+      comp.paintComponent((Graphics2D)frame.getGraphics());
+      frame.add(panel);
       frame.setFocusable(true);
       frame.requestFocusInWindow();
 

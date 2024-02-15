@@ -1,19 +1,22 @@
 import java.awt.Graphics2D;
 import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
+
+import javax.swing.JComponent;
+
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.Color;
 
-public class JFrameImage
+public class JFrameImage extends JComponent
 {
-
   private int xpos;
   private int ypos;
   private int xScale;
   private int yScale;
   private int rotation;
+  String filepath;
 
   public JFrameImage(int posx,int posy,int xScale,int yScale,int rotation)
   {
