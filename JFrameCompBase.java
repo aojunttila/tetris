@@ -17,24 +17,37 @@ import javax.swing.JComponent;
 
 public class JFrameCompBase extends JComponent{
     JPanel panel;
+    int sidething=0;
+    JFrameImage img;
+    Graphics2D g2;
     public JFrameCompBase(JPanel panel2){
         panel = panel2;
         System.out.println("hi");
-        JFrameImage img = new JFrameImage(1, 100, 10, 10, 0);
+        img = new JFrameImage(1, 100, 10, 10, 0);
         panel.add(img);
+        //img.paintImmediately(getVisibleRect());
         
     }
 
 
    @Override
    public void paintComponent(Graphics g)
-   {  
-    Graphics2D g2 = (Graphics2D) g;  // cast to Graphics2D object
-    JFrameImage img = new JFrameImage(1, 100, 10, 10, 0);
-    //img.draw(g2);
+   { 
+    g2 = (Graphics2D) g;  // cast to Graphics2D object
+    
+    //img.paintImmediately(getVisibleRect());
+    img.draw(g2);
+
     //panel.add(img);
     //JFrameImage = new JFrameImage(10,10, 100, 100, 100)
     
+   }
+
+   public void nextFrame(){
+    System.out.println(sidething);
+    sidething+=1;
+    img.nextFrame(sidething);
+    img.draw(g2);
    }
 
 }

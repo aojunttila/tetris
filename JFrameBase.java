@@ -16,8 +16,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class JFrameBase extends JFrame {
-  Random random=new Random();int w=500;int h=300;int s1=1;double s=s1;
+public class JFrameBase extends JFrame{
+  Random random=new Random();int w=500;int h=500;int s1=1;double s=s1;
   BufferedImage i;
   //Canvas canvas=new Canvas(w,h);
     public JFrameBase(){
@@ -42,8 +42,9 @@ public class JFrameBase extends JFrame {
 
       fullDraw();
       ScheduledExecutorService executor=Executors.newScheduledThreadPool(1);
-      Runnable task=()->{repaint();};
-      executor.scheduleAtFixedRate(task,0,30,TimeUnit.MILLISECONDS);
+      Runnable task=()->{repaint();comp.nextFrame();comp.paintComponent((Graphics2D)frame.getGraphics());
+      };
+      executor.scheduleAtFixedRate(task,0,300,TimeUnit.MILLISECONDS);
     }
       private void fullDraw(){
         Color c;byte v;
