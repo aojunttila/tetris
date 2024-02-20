@@ -13,8 +13,6 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.Color;
 
-import javax.swing.JComponent;
-
 public class JFrameCompBase extends JComponent{
     JPanel panel;
     int sidething=0;
@@ -46,8 +44,9 @@ public class JFrameCompBase extends JComponent{
    public void nextFrame(){
     System.out.println(sidething);
     sidething+=1;
-    img.nextFrame(sidething);
-    img.draw(g2);
+    img.nextFrame(sidething,g2);
+    //img.draw(g2);
+    //img.repaint();
    }
 
 }

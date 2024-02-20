@@ -42,7 +42,7 @@ public class JFrameBase extends JFrame{
 
       fullDraw();
       ScheduledExecutorService executor=Executors.newScheduledThreadPool(1);
-      Runnable task=()->{repaint();comp.nextFrame();comp.paintComponent((Graphics2D)frame.getGraphics());
+      Runnable task=()->{comp.nextFrame();comp.repaint();
       };
       executor.scheduleAtFixedRate(task,0,300,TimeUnit.MILLISECONDS);
     }

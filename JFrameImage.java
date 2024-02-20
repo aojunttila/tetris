@@ -19,7 +19,7 @@ public class JFrameImage extends JComponent
   Ellipse2D.Double ring2;
   String filepath;
   Graphics2D g1;
-  
+  int tttttt=0;
 
   public JFrameImage(int posx,int posy,int xScale,int yScale,int rotation)
   {
@@ -29,12 +29,14 @@ public class JFrameImage extends JComponent
 
   public void draw(Graphics2D g2){
     g1 = g2;
-    System.out.println("hi");
+    System.out.println("hi2"+tttttt);
     Ellipse2D.Double ring3 = new Ellipse2D.Double(0, 0, 400, 400);
     Ellipse2D.Double white3 = new Ellipse2D.Double(37.5, 37.5, 325, 325);
-    ring2 = new Ellipse2D.Double(75, 75, 250, 250);
+    ring2 = new Ellipse2D.Double(tttttt, 75, 250, 250);
     Ellipse2D.Double white2 = new Ellipse2D.Double(112.5, 112.5, 175, 175);
     Ellipse2D.Double ring1 = new Ellipse2D.Double(150, 150, 100, 100);
+    tttttt++;
+
 
     g2.setColor(Color.RED);
     g2.fill(ring3);
@@ -48,11 +50,13 @@ public class JFrameImage extends JComponent
     g2.fill(ring1);
   }
 
-  public void nextFrame(int sidething){
-    ring2 = new Ellipse2D.Double(sidething, 75, 250, 250);
-    g1.setColor(Color.BLACK);
-    g1.fill(ring2);
-    draw(g1);
+  public void nextFrame(int sidething, Graphics2D g2){
+    //ring2 = new Ellipse2D.Double(sidething, 75, 250, 250);
+    //g1.setColor(Color.BLACK);
+    //g1.fill(ring2);
+    //draw(g2);
+    ring2.x = tttttt;
+    
     
   }
 }
