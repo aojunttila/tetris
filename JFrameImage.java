@@ -23,23 +23,19 @@ public class JFrameImage extends JComponent
   Graphics2D g1;
   int tttttt=0;
 
-  public JFrameImage(int posx,int posy,int xScale,int yScale,int rotation, BufferedImage image2)
+  public JFrameImage(int posx,int posy,int xWidth,int yWidth,int rotation2, BufferedImage image2)
   {
-    this.xpos = posx;
-    this.ypos = posy;
+    xpos=posx;ypos=posy;
+    xScale=xWidth;yScale=yWidth;
+    rotation=rotation2;
     image=image2;
-
   }
 
   public void draw(Graphics2D g2){
     g1 = g2;
-    //System.out.println("hi2"+tttttt);
-    g2.drawImage(image,10,10,null);
+    //System.out.println(""hi2""+tttttt);
+    g2.drawImage(image,xpos+tttttt,ypos,xScale>0?xScale:image.getWidth(),yScale>0?yScale:image.getHeight(),null);
     tttttt++;
-
-    Ellipse2D.Double ring3 = new Ellipse2D.Double(0,0,100,100);
-    g2.setColor(Color.RED);
-    g2.fill(ring3);
   }
 
   public void nextFrame(int sidething, Graphics2D g2){

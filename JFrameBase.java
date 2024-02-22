@@ -17,14 +17,14 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class JFrameBase extends JFrame{
-  Random random=new Random();int w=500;int h=500;int s1=1;double s=s1;
+  Random random=new Random();int w=1500;int h=1000;int s1=1;double s=s1;
   BufferedImage i;
   //Canvas canvas=new Canvas(w,h);
     public JFrameBase(){
       i=new BufferedImage(w,h,BufferedImage.TYPE_INT_RGB);
       JFrame frame=new JFrame();
       JPanel panel=new JPanel();
-      JFrameCompBase comp=new JFrameCompBase(panel);
+      JFrameCompBase comp=new JFrameCompBase(panel,w,h);
       frame.setSize(w,h);
       //frame.add(comp);
       //p.getGraphics().drawLine(10,10, 100, 200);
@@ -32,7 +32,6 @@ public class JFrameBase extends JFrame{
       //setContentPane(p);setSize(w,h);setVisible(true);
       //setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);setLayout(null);
       panel.setVisible(true);
-      panel.setBackground(Color.RED);
       panel.setLayout(new OverlayLayout(panel));
       panel.add(comp);
       comp.paintComponent((Graphics2D)frame.getGraphics());
@@ -44,7 +43,7 @@ public class JFrameBase extends JFrame{
       ScheduledExecutorService executor=Executors.newScheduledThreadPool(1);
       Runnable task=()->{comp.nextFrame();comp.repaint();
       };
-      executor.scheduleAtFixedRate(task,0,300,TimeUnit.MILLISECONDS);
+      executor.scheduleAtFixedRate(task,0,16,TimeUnit.MILLISECONDS);
     }
       private void fullDraw(){
         Color c;byte v;

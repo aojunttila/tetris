@@ -27,35 +27,68 @@ public class JFrameCompBase extends JComponent{
     JFrameImage img;
     Graphics2D g2;
     BufferedImage image;
-    public JFrameCompBase(JPanel panel2){
+    BufferedImage bufferImage;
+    Graphics2D bufferG;
+    int width;
+    int height;
+    JFrameImage[]elementList=new JFrameImage[100];
+    public JFrameCompBase(JPanel panel2,int w,int h){
+        width=w;height=w;
+        bufferImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        bufferG = (Graphics2D) bufferImage.getGraphics();
+
         panel = panel2;
-        //System.out.println("hi");
+        g2=(Graphics2D)panel.getGraphics();
+        //System.out.println(""""hi"""");
         try {
             image = ImageIO.read(new File("apple.jpg"));
         } catch (Exception e) {}
         
-        img = new JFrameImage(1, 100, 10, 10, 0, image);
-        panel.add(img);
+        elementList[0]=new JFrameImage(500, 0, 1000, 1000, 0, image);
+        elementList[1]=new JFrameImage(20, 200, 500, 500, 0, image);        ;
+
+        for(int i=0;i<elementList.length;i++){
+            if(elementList[i]!=null){panel.add(elementList[i]);}}
+        
     }
 
 
    @Override
    public void paintComponent(Graphics g)
    {
-    g2 = (Graphics2D) g;  // cast to Graphics2D object
+    bufferG.clearRect(0,0,width, height);
+    render((Graphics2D)g);
+    
+    Graphics g3 = g;          
+    
+    g3.setColor(Color.black);
+    g3.fillRect(0, 0, 100, 100);              
+    g3.drawImage(bufferImage, 0, 0, null);
+    g3.dispose(); 
+    
+
+
+    //g2=(Graphics2D)g;
     
     //img.paintImmediately(getVisibleRect());
-    img.draw(g2);
+    
 
     //panel.add(img);
     //JFrameImage = new JFrameImage(10,10, 100, 100, 100)
     
    }
 
+   public void render(Graphics2D gb){
+    for(int i=0;i<elementList.length;i++){
+        if(elementList[i]!=null){elementList[i].draw(bufferG);}}
+   }
+
+
+
    public void nextFrame(){
     //System.out.println(sidething);
     sidething+=1;
-    img.nextFrame(sidething,g2);
+    //img.nextFrame(sidething,g2);
     //img.draw(g2);
     //img.repaint();
    }
