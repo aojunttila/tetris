@@ -19,6 +19,7 @@ import java.awt.Color;
 import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
+import java.util.Random;
 
 
 public class JFrameCompBase extends JComponent{
@@ -33,6 +34,7 @@ public class JFrameCompBase extends JComponent{
     int height;
     JFrameImage[]elementList=new JFrameImage[100];
     public JFrameCompBase(JPanel panel2,int w,int h){
+        Random rand=new Random();
         width=w;height=w;
         bufferImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         bufferG = (Graphics2D) bufferImage.getGraphics();
@@ -44,8 +46,10 @@ public class JFrameCompBase extends JComponent{
             image = ImageIO.read(new File("apple.jpg"));
         } catch (Exception e) {}
         
-        elementList[0]=new JFrameImage(500, 0, 1000, 1000, 0, image);
-        elementList[1]=new JFrameImage(20, 200, 500, 500, 0, image);        ;
+        for(int i=0;i<elementList.length;i++){
+            elementList[i]=new JFrameImage(rand.nextInt(1500), rand.nextInt(1000), (float)rand.nextInt(100)/1000, (float)rand.nextInt(100)/1000, rand.nextInt(200), image); 
+            //elementList[i]=new JFrameImage(500, 500, 100, 100, 10, image); 
+        }
 
         for(int i=0;i<elementList.length;i++){
             if(elementList[i]!=null){panel.add(elementList[i]);}}
