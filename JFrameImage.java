@@ -14,6 +14,7 @@ public class JFrameImage extends JComponent
 {
   private int xpos;
   private int ypos;
+  public int ogX,ogY;  
   private int xScale;
   private int yScale;
   private int rotation;
@@ -30,6 +31,7 @@ public class JFrameImage extends JComponent
     xScale=xWidth;yScale=yWidth;
     rotation=rotation2;
     image=image2;
+    ogX=posx;ogY=posy;
 
     //at.setToRotation(1.5, xpos*10 + (image.getWidth()*0.1 / 2), ypos*10 + (image.getHeight()*0.1 / 2));
     //at.rotate(1);
@@ -57,7 +59,7 @@ public class JFrameImage extends JComponent
     //ring2.x = tttttt;
   }
 
-  public void setPos(int x,int y){xpos=x>-1?x:xpos;ypos=y>-1?y:ypos;}
+  public void setPos(int x,int y){xpos=x;ypos=y;}
   public void setScale(int xS,int yS){xScale=xS>0?xS:xScale;yScale=yS>0?yS:yScale;}
   public void changePos(int x,int y){xpos+=x;ypos+=y;}
   public void changeScale(int xS,int yS){xScale=xScale+xS>1?xScale+xS:1;yScale=yScale+yS>1?yScale+yS:1;}
