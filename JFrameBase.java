@@ -3,6 +3,7 @@ import javax.swing.*;
 import java.awt.*;
 import javax.swing.border.*;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.Random;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -19,11 +20,20 @@ import java.util.concurrent.TimeUnit;
 public class JFrameBase extends JFrame{
   Random random=new Random();int w=1500;int h=1000;int s1=1;double s=s1;
   BufferedImage i;
+  int framecount=0;
+  JFrame frame;
+  JPanel panel;
+  Boolean mouseDown=false;
+  int scrollAmount;
+  int mouseX=0;
+  int mouseY=0;
+  ArrayList<Float>frametimes=new ArrayList<Float>(); 
   //Canvas canvas=new Canvas(w,h);
     public JFrameBase(){
+      Util ut=new Util();
       i=new BufferedImage(w,h,BufferedImage.TYPE_INT_RGB);
-      JFrame frame=new JFrame();
-      JPanel panel=new JPanel();
+      frame=new JFrame();
+      panel=new JPanel();
       JFrameCompBase comp=new JFrameCompBase(panel,w,h);
       frame.setSize(w,h);
       //frame.add(comp);
@@ -41,10 +51,54 @@ public class JFrameBase extends JFrame{
 
       fullDraw();
       ScheduledExecutorService executor=Executors.newScheduledThreadPool(1);
-      Runnable task=()->{comp.nextFrame();comp.repaint();
+      Runnable task=()->{
+
+        ut.startTimer();
+        comp.nextFrame(mouseX,mouseY,mouseDown);comp.repaint();
+        frametimes.add(ut.stopTimer(false));
+        framecount+=1;
+        //System.out.println(mouseX+" "+mouseY);
+        if(framecount==1){
+          for(int i=0;i<frametimes.size();i++){
+            float frametotal=0;
+            frametotal+=frametimes.get(i);
+            System.out.println(Util.colorText("Average frame time: "+(frametotal/framecount)+" ms",1,150,1));
+          }
+        }
       };
       executor.scheduleAtFixedRate(task,0,16,TimeUnit.MILLISECONDS);
+
+      ///*
+    panel.addMouseWheelListener(new MouseWheelListener() {
+      public void mouseWheelMoved(MouseWheelEvent e) {
+        System.out.println(e.getWheelRotation());
+        if(e.getWheelRotation()==1){scrollAmount+=e.getWheelRotation();}
+        else if(s>s1){scrollAmount+=e.getWheelRotation();}
+        System.out.println(s1+scrollAmount/4);
+        s=s1+scrollAmount/4;
+
+      }
+    });
+    panel.addMouseListener(new MouseAdapter(){
+      public void mousePressed(MouseEvent e){mouseDown=true;panel.requestFocusInWindow();}
+      public void mouseReleased(MouseEvent e){mouseDown=false;}});
+      panel.addMouseMotionListener(new MouseAdapter(){
+      public void mouseMoved(MouseEvent e){mouseX=e.getX();mouseY=e.getY();}
+      public void mouseDragged(MouseEvent e){mouseX=e.getX();mouseY=e.getY();}});
+      panel.addKeyListener(new KeyListener(){
+      public void keyTyped(KeyEvent e){}
+      public void keyPressed(KeyEvent e){
+        //System.out.println(e.getKeyCode());
+      }
+      public void keyReleased(KeyEvent e){
+        //System.out.println(e.getKeyCode());
+      }
+      });
+      //*/
     }
+
+
+
       private void fullDraw(){
         Color c;byte v;
         //for(int y=0;y<h;y++){for(int x=0;x<w;x++){
@@ -52,6 +106,20 @@ public class JFrameBase extends JFrame{
           //if(d[v].length==3){c=new Color(d[v][0],d[v][1],d[v][2]);}
           //else{c=new Color(d[v][0]+random.nextInt(d[v][3]),d[v][1]+random.nextInt(d[v][4]),d[v][2]+random.nextInt(d[v][5]));}
           //i.setRGB(x,y,c.getRGB());
+
+          /*
+        ut.startTimer();
+        comp.nextFrame();comp.repaint();
+        frametimes.add(ut.stopTimer(false));
+        framecount+=1;
+        if(framecount==1){
+          for(int i=0;i<frametimes.size();i++){
+            float frametotal=0;
+            frametotal+=frametimes.get(i);
+            System.out.println(Util.colorText("Average frame time: "+(frametotal/framecount)+" ms",1,150,1));
+          }
+        }
+           */
       }
 
     public static void main(String[]args){
