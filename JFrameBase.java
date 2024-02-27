@@ -1,18 +1,15 @@
 //package Utils;
 import javax.swing.*;
 import java.awt.*;
-import javax.swing.border.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Random;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.KeyListener;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseWheelListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.KeyEvent;
-import java.awt.event.ActionEvent;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -45,6 +42,7 @@ public class JFrameBase extends JFrame{
       panel.setLayout(new OverlayLayout(panel));
       panel.add(comp);
       comp.paintComponent((Graphics2D)frame.getGraphics());
+      //((Graphics2D)frame.getGraphics()).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
       frame.add(panel);
       frame.setFocusable(true);
       frame.requestFocusInWindow();
@@ -100,7 +98,6 @@ public class JFrameBase extends JFrame{
 
 
       private void fullDraw(){
-        Color c;byte v;
         //for(int y=0;y<h;y++){for(int x=0;x<w;x++){
           //v=canvas.getValue(x,y);
           //if(d[v].length==3){c=new Color(d[v][0],d[v][1],d[v][2]);}
