@@ -20,10 +20,11 @@ public class JFrameCompBase extends JComponent{
     BufferedImage bufferImage;
     Graphics2D bufferG;
     int width;
-    JFrameImgQuad testpoly;
+    JFramePolygon testpoly;
     int height;int h2;
     Random rand=new Random();
     JFrameImage[]elementList=new JFrameImage[2000];
+    JFramePolygon[]polyList=new JFramePolygon[2000];
     public JFrameCompBase(JPanel panel2,int w,int h){
         width=w;height=h;
         bufferImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
@@ -42,11 +43,13 @@ public class JFrameCompBase extends JComponent{
         for(int i=0;i<elementList.length;i++){
             //if(rand.nextInt(2)==0){
             elementList[i]=new JFrameImage(rand.nextInt(3000)-750,rand.nextInt(2000)-500,1+(int)Math.pow((double)i,2)/80000,1+(int)Math.pow((double)i,2)/80000,0,image); 
+            int thingx=rand.nextInt(width+100);int thingy=rand.nextInt(height);
+            polyList[i]=new JFramePolygon(new int[]{thingx,thingx+rand.nextInt(100),thingx+rand.nextInt(100)},new int[]{thingy,thingy+rand.nextInt(50)+25,thingy+rand.nextInt(50)+25},new Color(0,0,0),new Color(rand.nextInt(150),rand.nextInt(150),rand.nextInt(150)),(float)3); 
             //}else{elementList[i]=new JFrameImage(rand.nextInt(1500),rand.nextInt(1000),rand.nextInt(100)+1,rand.nextInt(100)+1,rand.nextInt(200),image2); }
             //elementList[i]=new JFrameImage(500, 500, 100, 100, 10, image); 
         }
         //testpoly=new JFramePolygon(new int[]{20,200,400},new int[]{30,500,100},new Color(105,0,150),new Color(10,10,50),(float)10);
-        testpoly=new JFrameImgQuad(new int[]{20,200,400,300},new int[]{30,500,100,100},new Color(105,0,150),(float)10,image);
+        //testpoly=new JFrameImgQuad(new int[]{20,200,400,300},new int[]{30,500,100,100},new Color(105,0,150),(float)10,image);
 
 
         for(int i=0;i<elementList.length;i++){
@@ -74,9 +77,11 @@ public class JFrameCompBase extends JComponent{
     //bufferG.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
     for(int i=0;i<elementList.length;i++){
         if(elementList[i]!=null){
-            elementList[i].draw(bufferG);}
+            elementList[i].draw(bufferG);
+            polyList[i].draw(bufferG);
         }
-    testpoly.draw(bufferG);
+    }
+    
     
    }
 
@@ -84,10 +89,12 @@ public class JFrameCompBase extends JComponent{
 
    public void nextFrame(int mouseX,int mouseY,boolean mouseDown){
     int x;int y;//System.out.println(mouseX+" "+mouseY);
-    testpoly.setPoint(2,mouseX,mouseY);
+    //testpoly.setPoint(2,mouseX,mouseY);
     for(int i=0;i<elementList.length;i++){
         if(elementList[i]!=null){
             x=elementList[i].getXPos();y=elementList[i].getYPos();
+            polyList[i].movePos(rand.nextInt(5),0);
+            if(polyList[i].getX()>width){polyList[i].setPos(-100,polyList[i].getY());}
             elementList[i].setPos((int)(elementList[i].ogX+(mouseX-(width/2))/(1+(float)elementList[i].getXScale()/20)),(int)(elementList[i].ogY+(mouseY-(height/2))/(1+(float)elementList[i].getYScale()/20)));
             //elementList[i].changePos(rand.nextInt(3)-1,rand.nextInt(3)-1);
             //if(mouseDown){elementList[i].changePos(mouseX>x?1:-1,mouseY>y?1:-1);}

@@ -1,5 +1,7 @@
 import java.awt.Graphics2D;
 import java.awt.Polygon;
+import java.awt.geom.Rectangle2D;
+
 import javax.swing.JComponent;
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -55,6 +57,9 @@ public class JFramePolygon extends JComponent
     arrayY[index]=y;
     poly=new Polygon(arrayX,arrayY,arrayX.length);
   }
+  public int getX(){return (int)poly.getBounds2D().getMinX();}
+  public int getY(){return (int)poly.getBounds2D().getMinY();}
+  public Rectangle2D getBoundRect(){return poly.getBounds2D();}
   //public void setPos(int x,int y){xpos=x;ypos=y;}
   //public void setScale(int xS,int yS){xScale=xS>0?xS:xScale;yScale=yS>0?yS:yScale;}
   //public void changePos(int x,int y){xpos+=x;ypos+=y;}
