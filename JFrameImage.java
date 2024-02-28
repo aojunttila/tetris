@@ -3,7 +3,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import javax.swing.JComponent;
-
+import java.awt.*;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
@@ -48,7 +48,9 @@ public class JFrameImage extends JComponent
     
     //System.out.println(""hi2""+tttttt);
     //g2.setTransform(at);
-    g2.drawImage(image,xpos,ypos,xScale>0?xScale:image.getWidth(),yScale>0?yScale:image.getHeight(),null);
+    //Toolkit.getDefaultToolkit().sync(); 
+    g2.drawImage(image,xpos,ypos,xScale>0?xScale:image.getWidth(),yScale>0?yScale*10:image.getHeight(),null);
+    //Toolkit.getDefaultToolkit().sync(); 
   }
 
   public void nextFrame(int sidething, Graphics2D g2){

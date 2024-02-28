@@ -25,13 +25,13 @@ public class JFrameCompBase extends JComponent{
     Random rand=new Random();
     JFrameImage[]elementList=new JFrameImage[2000];
     JFramePolygon[]polyList=new JFramePolygon[2000];
+    JFrameParticleEmitter testEmitter;
     public JFrameCompBase(JPanel panel2,int w,int h){
         width=w;height=h;
         bufferImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-        bufferG = (Graphics2D) bufferImage.getGraphics();
+        bufferG = (Graphics2D) bufferImage.createGraphics();
         //bufferG.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
         h2=bufferImage.getHeight();
-
         panel = panel2;
         g2=(Graphics2D)panel.getGraphics();
         //System.out.println(""""hi"""");
@@ -48,6 +48,7 @@ public class JFrameCompBase extends JComponent{
             //}else{elementList[i]=new JFrameImage(rand.nextInt(1500),rand.nextInt(1000),rand.nextInt(100)+1,rand.nextInt(100)+1,rand.nextInt(200),image2); }
             //elementList[i]=new JFrameImage(500, 500, 100, 100, 10, image); 
         }
+        testEmitter=new JFrameParticleEmitter(new int[]{100,100,10,10}, image2);
         //testpoly=new JFramePolygon(new int[]{20,200,400},new int[]{30,500,100},new Color(105,0,150),new Color(10,10,50),(float)10);
         //testpoly=new JFrameImgQuad(new int[]{20,200,400,300},new int[]{30,500,100,100},new Color(105,0,150),(float)10,image);
 
@@ -61,25 +62,30 @@ public class JFrameCompBase extends JComponent{
    @Override
    public void paintComponent(Graphics g)
    {
+    bufferG.clearRect(0,0,width, height);
+    Graphics g3 = g; 
+        g3.setColor(Color.black);
+        g3.fillRect(0,0,1000,1000);  
         bufferG.clearRect(0,0,width, height);
         render((Graphics2D)g);
-
-        Graphics g3 = g;          
-
-        g3.setColor(Color.black);
-        g3.fillRect(0, 0, 100, 100);              
+                 
+            
         g3.drawImage(bufferImage, 0, 0, null);
         g3.dispose(); 
-    
    }
 
    public void render(Graphics2D gb){
     //bufferG.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+    testEmitter.draw(bufferG);
+    //Toolkit.getDefaultToolkit().sync();
     for(int i=0;i<elementList.length;i++){
         if(elementList[i]!=null){
-            elementList[i].draw(bufferG);
-            polyList[i].draw(bufferG);
+            //elementList[i].draw(bufferG);
+            //Toolkit.getDefaultToolkit().sync(); 
+            
+            //polyList[i].draw(bufferG);
         }
+        
     }
     
     

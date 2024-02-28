@@ -17,13 +17,14 @@ import java.util.concurrent.TimeUnit;
 public class JFrameBase extends JFrame{
   Random random=new Random();int w=1500;int h=1000;int s1=1;double s=s1;
   BufferedImage i;
-  int framecount=0;
+  int framecount=-1;
   JFrame frame;
   JPanel panel;
   Boolean mouseDown=false;
   int scrollAmount;
   int mouseX=0;
   int mouseY=0;
+  JFrameCompBase comp;
   ArrayList<Float>frametimes=new ArrayList<Float>(); 
   //Canvas canvas=new Canvas(w,h);
     public JFrameBase(){
@@ -31,7 +32,7 @@ public class JFrameBase extends JFrame{
       i=new BufferedImage(w,h,BufferedImage.TYPE_INT_RGB);
       frame=new JFrame();
       panel=new JPanel();
-      JFrameCompBase comp=new JFrameCompBase(panel,w,h);
+      comp=new JFrameCompBase(panel,w,h);
       frame.setSize(w,h);
       //frame.add(comp);
       //p.getGraphics().drawLine(10,10, 100, 200);
@@ -48,12 +49,14 @@ public class JFrameBase extends JFrame{
       frame.requestFocusInWindow();
 
       fullDraw();
+      run();
+      /*
       ScheduledExecutorService executor=Executors.newScheduledThreadPool(1);
       Runnable task=()->{
 
-        ut.startTimer();
+        if(framecount>1){ut.startTimer();}
         comp.nextFrame(mouseX,mouseY,mouseDown);comp.repaint();
-        frametimes.add(ut.stopTimer(false));
+        if(framecount>1){frametimes.add(ut.stopTimer(false));}
         framecount+=1;
         //System.out.println(mouseX+" "+mouseY);
         if(framecount==1){
@@ -64,7 +67,7 @@ public class JFrameBase extends JFrame{
           }
         }
       };
-      executor.scheduleAtFixedRate(task,0,16,TimeUnit.MILLISECONDS);
+      executor.scheduleAtFixedRate(task,0,1000/60,TimeUnit.MILLISECONDS);*/
 
       ///*
     panel.addMouseWheelListener(new MouseWheelListener() {
@@ -95,6 +98,21 @@ public class JFrameBase extends JFrame{
       //*/
     }
 
+
+    public void run(){
+      long lastTime = System.nanoTime();
+      final double ns = 1000000000.0 / 60.0;
+      double delta = 0;
+      while(true){
+          long now = System.nanoTime();
+          delta += (now - lastTime) / ns;
+          lastTime = now;
+          while(delta >= 1){
+            comp.nextFrame(mouseX,mouseY,mouseDown);comp.repaint();
+              delta--;
+              }
+          } 
+     }
 
 
       private void fullDraw(){
