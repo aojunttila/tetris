@@ -49,7 +49,7 @@ public class JFrameImage extends JComponent
     //System.out.println(""hi2""+tttttt);
     //g2.setTransform(at);
     //Toolkit.getDefaultToolkit().sync(); 
-    g2.drawImage(image,xpos,ypos,xScale>0?xScale:image.getWidth(),yScale>0?yScale*10:image.getHeight(),null);
+    g2.drawImage(image,xpos,ypos,xScale>0?xScale:image.getWidth(),yScale>0?yScale:image.getHeight(),null);
     //Toolkit.getDefaultToolkit().sync(); 
   }
 

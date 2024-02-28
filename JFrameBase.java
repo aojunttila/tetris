@@ -49,8 +49,8 @@ public class JFrameBase extends JFrame{
       frame.requestFocusInWindow();
 
       fullDraw();
-      run();
-      /*
+      //run();
+      ///*
       ScheduledExecutorService executor=Executors.newScheduledThreadPool(1);
       Runnable task=()->{
 
@@ -67,7 +67,7 @@ public class JFrameBase extends JFrame{
           }
         }
       };
-      executor.scheduleAtFixedRate(task,0,1000/60,TimeUnit.MILLISECONDS);*/
+      executor.scheduleAtFixedRate(task,0,1000/60,TimeUnit.MILLISECONDS);//*/
 
       ///*
     panel.addMouseWheelListener(new MouseWheelListener() {

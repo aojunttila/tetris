@@ -48,7 +48,7 @@ public class JFrameCompBase extends JComponent{
             //}else{elementList[i]=new JFrameImage(rand.nextInt(1500),rand.nextInt(1000),rand.nextInt(100)+1,rand.nextInt(100)+1,rand.nextInt(200),image2); }
             //elementList[i]=new JFrameImage(500, 500, 100, 100, 10, image); 
         }
-        testEmitter=new JFrameParticleEmitter(new int[]{100,100,10,10}, image2);
+        testEmitter=new JFrameParticleEmitter(new int[]{100,500,500,10,0,10,-10,10,20,20,98}, image2);
         //testpoly=new JFramePolygon(new int[]{20,200,400},new int[]{30,500,100},new Color(105,0,150),new Color(10,10,50),(float)10);
         //testpoly=new JFrameImgQuad(new int[]{20,200,400,300},new int[]{30,500,100,100},new Color(105,0,150),(float)10,image);
 
