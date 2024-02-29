@@ -28,12 +28,14 @@ public class JFrameBase extends JFrame{
   ArrayList<Float>frametimes=new ArrayList<Float>(); 
   //Canvas canvas=new Canvas(w,h);
     public JFrameBase(){
+      h=(int)Toolkit.getDefaultToolkit().getScreenSize().getHeight();
+      w=(int)Toolkit.getDefaultToolkit().getScreenSize().getWidth();
       Util ut=new Util();
       i=new BufferedImage(w,h,BufferedImage.TYPE_INT_RGB);
       frame=new JFrame();
       panel=new JPanel();
       comp=new JFrameCompBase(panel,w,h);
-      frame.setSize(w,h);
+      frame.setSize(w+100,h+100);
       //frame.add(comp);
       //p.getGraphics().drawLine(10,10, 100, 200);
       frame.setVisible(true);

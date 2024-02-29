@@ -9,6 +9,7 @@ import java.awt.Color;
 public class JFramePolygon extends JComponent
 {
   Polygon poly;
+  float transX,transY;
   //int[]arrayX,arrayY;
   Color linecolor,fillcolor;
   int[]arrayX,arrayY;
@@ -45,6 +46,7 @@ public class JFramePolygon extends JComponent
   }
 
   public void movePos(int x,int y){
+    transX+=x;transY+=y;
     poly.translate(x,y);
   }
   public void setPos(int newX,int newY){
@@ -52,9 +54,26 @@ public class JFramePolygon extends JComponent
     int oldY=(int)poly.getBounds2D().getMinY();
     poly.translate(newX-oldX,newY-oldY);
   }
+  public void movePosFloat(float x, float y){
+    transX+=x;transY+=y;
+    setPos((int)transX,(int)transY);
+  }
+  public void changePosNew(int newX,int newY){
+    for(int i=0;i<arrayX.length;i++){
+      arrayX[i]=newX+poly.xpoints[i];
+      arrayY[i]=newY+poly.ypoints[i];
+    }
+    poly=new Polygon(arrayX,arrayY,arrayX.length);
+    //poly=new Polygon(arrayX,arrayY,arrayX.length);
+  }
   public void setPoint(int index,int x,int y){
     arrayX[index]=x;
     arrayY[index]=y;
+    poly=new Polygon(arrayX,arrayY,arrayX.length);
+  }
+  public void changePoint(int index,int x,int y){
+    arrayX[index]=x+poly.xpoints[index];
+    arrayY[index]=y+poly.ypoints[index];
     poly=new Polygon(arrayX,arrayY,arrayX.length);
   }
   public int getX(){return (int)poly.getBounds2D().getMinX();}

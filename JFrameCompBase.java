@@ -1,12 +1,8 @@
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import javax.swing.border.*;
-
 import java.io.File;
-import java.nio.Buffer;
 import java.awt.image.BufferedImage;
-import java.awt.geom.Point2D;
 import java.util.Random;
 
 
@@ -15,17 +11,18 @@ public class JFrameCompBase extends JComponent{
     int sidething=0;
     JFrameImage img;
     Graphics2D g2;
-    BufferedImage image;
-    BufferedImage image2;
+    BufferedImage image,image2,imageOverlay;
     BufferedImage bufferImage;
     Graphics2D bufferG;
     int width;
+    boolean imageOver;
     JFramePolygon testpoly;
     int height;int h2;
     Random rand=new Random();
     JFrameImage[]elementList=new JFrameImage[2000];
     JFramePolygon[]polyList=new JFramePolygon[2000];
-    JFrameParticleEmitter testEmitter;
+    JFrameParticleImage testEmitter;
+    JFrameParticlePolygon testEmitter2;
     public JFrameCompBase(JPanel panel2,int w,int h){
         width=w;height=h;
         bufferImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
@@ -37,7 +34,10 @@ public class JFrameCompBase extends JComponent{
         //System.out.println(""""hi"""");
         try {
             image = ImageIO.read(new File("apple.jpg"));
-            image2 = ImageIO.read(new File("banana.png"));
+            image2 = ImageIO.read(new File("apple2.jpg"));
+            imageOver=true;
+            if(imageOver){imageOverlay = ImageIO.read(new File("vignette.png"));}
+
         } catch (Exception e) {}
         
         for(int i=0;i<elementList.length;i++){
@@ -48,8 +48,9 @@ public class JFrameCompBase extends JComponent{
             //}else{elementList[i]=new JFrameImage(rand.nextInt(1500),rand.nextInt(1000),rand.nextInt(100)+1,rand.nextInt(100)+1,rand.nextInt(200),image2); }
             //elementList[i]=new JFrameImage(500, 500, 100, 100, 10, image); 
         }
-        testEmitter=new JFrameParticleEmitter(new int[]{100,500,500,10,0,10,-10,10,20,20,98}, image2);
-        //testpoly=new JFramePolygon(new int[]{20,200,400},new int[]{30,500,100},new Color(105,0,150),new Color(10,10,50),(float)10);
+        //testEmitter=new JFrameParticleImage(new int[]{200,700,900,0,180,10,5,2,30,30,99,120,100},false,image2);
+        //testEmitter2=new JFrameParticlePolygon(new int[]{500,500,0,1000,90,360,20,10,98,120,300},new int[]{0,10,10},new int[]{0,-30,20},Color.RED,Color.BLUE,true,image2);
+        //testpoly=new JFramePolygon(new int[]{20,200,400},new int[]{-30,500,100},new Color(105,0,150),new Color(10,10,50),(float)10);
         //testpoly=new JFrameImgQuad(new int[]{20,200,400,300},new int[]{30,500,100,100},new Color(105,0,150),(float)10,image);
 
 
@@ -65,28 +66,31 @@ public class JFrameCompBase extends JComponent{
     bufferG.clearRect(0,0,width, height);
     Graphics g3 = g; 
         g3.setColor(Color.black);
-        g3.fillRect(0,0,1000,1000);  
+        g3.fillRect(0,0,width,height);  
         bufferG.clearRect(0,0,width, height);
         render((Graphics2D)g);
                  
             
-        g3.drawImage(bufferImage, 0, 0, null);
+        g3.drawImage(PostProcessing.blur(bufferImage), 0, 0, null);
         g3.dispose(); 
    }
 
    public void render(Graphics2D gb){
     //bufferG.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-    testEmitter.draw(bufferG);
+    //testEmitter.draw(bufferG);
+    //testpoly.draw(bufferG);
+    //testEmitter2.draw(bufferG);
     //Toolkit.getDefaultToolkit().sync();
     for(int i=0;i<elementList.length;i++){
         if(elementList[i]!=null){
-            //elementList[i].draw(bufferG);
+            elementList[i].draw(bufferG);
             //Toolkit.getDefaultToolkit().sync(); 
             
             //polyList[i].draw(bufferG);
         }
         
     }
+    if(imageOver){bufferG.drawImage(imageOverlay,0,0,width,height,null);}
     
     
    }
@@ -94,11 +98,11 @@ public class JFrameCompBase extends JComponent{
 
 
    public void nextFrame(int mouseX,int mouseY,boolean mouseDown){
-    int x;int y;//System.out.println(mouseX+" "+mouseY);
+    //int x;int y;
     //testpoly.setPoint(2,mouseX,mouseY);
     for(int i=0;i<elementList.length;i++){
         if(elementList[i]!=null){
-            x=elementList[i].getXPos();y=elementList[i].getYPos();
+            //x=elementList[i].getXPos();y=elementList[i].getYPos();
             polyList[i].movePos(rand.nextInt(5),0);
             if(polyList[i].getX()>width){polyList[i].setPos(-100,polyList[i].getY());}
             elementList[i].setPos((int)(elementList[i].ogX+(mouseX-(width/2))/(1+(float)elementList[i].getXScale()/20)),(int)(elementList[i].ogY+(mouseY-(height/2))/(1+(float)elementList[i].getYScale()/20)));
