@@ -19,8 +19,8 @@ public class JFrameBase extends JFrame{
   BufferedImage i;
   int framecount=-1;
   JFrame frame;
-  JPanel panel;
-  Boolean mouseDown=false;
+  JPanel panel;boolean[]pressedKeys=new boolean[100];int[]keyHoldFrames=new int[100];
+  Boolean mouseDown=false;boolean[]bufferedReleasedKeys=new boolean[100];
   int scrollAmount;
   int mouseX=0;
   int mouseY=0;
@@ -57,7 +57,7 @@ public class JFrameBase extends JFrame{
       Runnable task=()->{
 
         if(framecount>1){ut.startTimer();}
-        comp.nextFrame(mouseX,mouseY,mouseDown);comp.repaint();
+        comp.nextFrame(mouseX,mouseY,mouseDown,pressedKeys);comp.repaint();
         if(framecount>1){frametimes.add(ut.stopTimer(false));}
         framecount+=1;
         //System.out.println(mouseX+" "+mouseY);
@@ -68,18 +68,21 @@ public class JFrameBase extends JFrame{
             System.out.println(Util.colorText("Average frame time: "+(frametotal/framecount)+" ms",1,150,1));
           }
         }
+        for(int i=0;i<pressedKeys.length;i++){
+          if(pressedKeys[i]){keyHoldFrames[i]+=1;}else{keyHoldFrames[i]=0;}
+          if(bufferedReleasedKeys[i]){bufferedReleasedKeys[i]=false;pressedKeys[i]=false;}
+        }
       };
-      executor.scheduleAtFixedRate(task,0,1000/60,TimeUnit.MILLISECONDS);//*/
+      executor.scheduleAtFixedRate(task,0,1000/30,TimeUnit.MILLISECONDS);//*/
 
       ///*
-    panel.addMouseWheelListener(new MouseWheelListener() {
-      public void mouseWheelMoved(MouseWheelEvent e) {
+    panel.addMouseWheelListener(new MouseWheelListener(){
+      public void mouseWheelMoved(MouseWheelEvent e){
         System.out.println(e.getWheelRotation());
         if(e.getWheelRotation()==1){scrollAmount+=e.getWheelRotation();}
         else if(s>s1){scrollAmount+=e.getWheelRotation();}
         System.out.println(s1+scrollAmount/4);
         s=s1+scrollAmount/4;
-
       }
     });
     panel.addMouseListener(new MouseAdapter(){
@@ -91,9 +94,12 @@ public class JFrameBase extends JFrame{
       panel.addKeyListener(new KeyListener(){
       public void keyTyped(KeyEvent e){}
       public void keyPressed(KeyEvent e){
+        pressedKeys[e.getKeyCode()]=true;
         //System.out.println(e.getKeyCode());
       }
       public void keyReleased(KeyEvent e){
+        if(keyHoldFrames[e.getKeyCode()]>0){pressedKeys[e.getKeyCode()]=false;}
+        bufferedReleasedKeys[e.getKeyCode()]=true;
         //System.out.println(e.getKeyCode());
       }
       });
@@ -110,7 +116,7 @@ public class JFrameBase extends JFrame{
           delta += (now - lastTime) / ns;
           lastTime = now;
           while(delta >= 1){
-            comp.nextFrame(mouseX,mouseY,mouseDown);comp.repaint();
+            comp.nextFrame(mouseX,mouseY,mouseDown,pressedKeys);comp.repaint();
               delta--;
               }
           } 
