@@ -1,2 +1,2 @@
-# Utils
-random helper files
+# Tetris
+tetris in java (very unfinished)

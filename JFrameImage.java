@@ -6,8 +6,8 @@ import java.awt.geom.Ellipse2D;
 
 public class JFrameImage extends JComponent
 {
-  private float xpos;
-  private float ypos;
+  float xpos;
+  float ypos;
   public int ogX,ogY;  
   private int xScale;
   private int yScale;
@@ -16,6 +16,7 @@ public class JFrameImage extends JComponent
   String filepath;
   Graphics2D g1;
   int tttttt=0;
+  int index=0;
   float alpha=1;
   //AffineTransform at;
 

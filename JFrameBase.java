@@ -22,8 +22,7 @@ public class JFrameBase extends JFrame{
   JPanel panel;boolean[]pressedKeys=new boolean[100];int[]keyHoldFrames=new int[100];
   Boolean mouseDown=false;boolean[]bufferedReleasedKeys=new boolean[100];
   int scrollAmount;
-  int mouseX=0;
-  int mouseY=0;
+  int mouseX=0,mouseY=0;
   JFrameCompBase comp;
   ArrayList<Float>frametimes=new ArrayList<Float>(); 
   //Canvas canvas=new Canvas(w,h);
@@ -43,6 +42,7 @@ public class JFrameBase extends JFrame{
       //setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);setLayout(null);
       panel.setVisible(true);
       panel.setLayout(new OverlayLayout(panel));
+      //panel.setLayout(null);
       panel.add(comp);
       comp.paintComponent((Graphics2D)frame.getGraphics());
       //((Graphics2D)frame.getGraphics()).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -55,25 +55,24 @@ public class JFrameBase extends JFrame{
       ///*
       ScheduledExecutorService executor=Executors.newScheduledThreadPool(1);
       Runnable task=()->{
-
         if(framecount>1){ut.startTimer();}
-        comp.nextFrame(mouseX,mouseY,mouseDown,pressedKeys);comp.repaint();
+        comp.nextFrame(mouseX,mouseY,mouseDown,pressedKeys);
         if(framecount>1){frametimes.add(ut.stopTimer(false));}
         framecount+=1;
         //System.out.println(mouseX+" "+mouseY);
-        if(framecount==1){
-          for(int i=0;i<frametimes.size();i++){
-            float frametotal=0;
-            frametotal+=frametimes.get(i);
-            System.out.println(Util.colorText("Average frame time: "+(frametotal/framecount)+" ms",1,150,1));
-          }
-        }
         for(int i=0;i<pressedKeys.length;i++){
           if(pressedKeys[i]){keyHoldFrames[i]+=1;}else{keyHoldFrames[i]=0;}
           if(bufferedReleasedKeys[i]){bufferedReleasedKeys[i]=false;pressedKeys[i]=false;}
         }
       };
       executor.scheduleAtFixedRate(task,0,1000/30,TimeUnit.MILLISECONDS);//*/
+
+      ScheduledExecutorService executor2=Executors.newScheduledThreadPool(1);
+      Runnable task2=()->{
+        comp.repaint();
+      };
+      executor2.scheduleAtFixedRate(task2,0,1000/1000,TimeUnit.MILLISECONDS);      
+
 
       ///*
     panel.addMouseWheelListener(new MouseWheelListener(){
@@ -95,7 +94,7 @@ public class JFrameBase extends JFrame{
       public void keyTyped(KeyEvent e){}
       public void keyPressed(KeyEvent e){
         pressedKeys[e.getKeyCode()]=true;
-        //System.out.println(e.getKeyCode());
+        System.out.println(e.getKeyCode());
       }
       public void keyReleased(KeyEvent e){
         if(keyHoldFrames[e.getKeyCode()]>0){pressedKeys[e.getKeyCode()]=false;}
