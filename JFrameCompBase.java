@@ -7,7 +7,7 @@ import java.util.Random;
 
 
 public class JFrameCompBase extends JComponent{
-    JPanel panel;JFrameImage[][]imageList;JFrameImage[]holdList;JFrameImage[]nextList;
+    JPanel panel;JFrameImage[][]imageList;JFrameImage[]holdList;JFrameImage[][]nextList;
     int sidething=0;int das=10;int arr=2;
     JFrameImage img;
     long timeStart,timeSinceStart;
@@ -56,6 +56,7 @@ public class JFrameCompBase extends JComponent{
             if(elementList[i]!=null){panel.add(elementList[i]);}}
         board.populateList();
         board.populateHold();
+        board.populateNext();
         panel.add(text.getObject());
         text.getObject().setVisible(false);
         
@@ -93,8 +94,9 @@ public class JFrameCompBase extends JComponent{
     //bufferG.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
     if(imageList!=null){for(int x=0;x<imageList.length;x++){
     for(int y=0;y<imageList[0].length;y++){imageList[x][y].draw(bufferG);}}}
-    if(holdList!=null){for(int y=0;y<holdList.length;y++){holdList[y].draw(bufferG);}}
-    if(nextList!=null){for(int y=0;y<nextList.length;y++){nextList[y].draw(bufferG);}}
+    if(holdList!=null&&board.holdPieceIndex!=-1){for(int y=0;y<holdList.length;y++){holdList[y].draw(bufferG);}}
+    if(nextList!=null){for(int x=0;x<nextList.length;x++){
+        for(int y=0;y<nextList[0].length;y++){nextList[x][y].draw(bufferG);}}}
 
     for(int i=0;i<elementList.length;i++){
         if(elementList[i]!=null){
@@ -117,12 +119,13 @@ public class JFrameCompBase extends JComponent{
     //int x;int y;
     //testpoly.setPoint(2,mouseX,mouseY);
     //x,y,rotation
-    int[]moves={0,0,0};
+    int[]moves={0,0,0,0};
     if(keyHoldFrames[65]==1||(keyHoldFrames[65]>das&&(keyHoldFrames[65]%arr)==0)){moves[2]=3;}
     if(keyHoldFrames[83]==1||(keyHoldFrames[83]>das&&(keyHoldFrames[83]%arr)==0)){moves[2]=2;}
     if(keyHoldFrames[68]==1||(keyHoldFrames[68]>das&&(keyHoldFrames[68]%arr)==0)){moves[2]=1;}
     
     if(keyHoldFrames[32]==1){moves[1]=24;}
+    if(keyHoldFrames[87]==1){moves[3]=1;}
     if(keyHoldFrames[37]==1||(keyHoldFrames[37]>das&&(keyHoldFrames[37]%arr)==0)){moves[0]-=1;}
     if(keyHoldFrames[39]==1||(keyHoldFrames[39]>das&&(keyHoldFrames[39]%arr)==0)){moves[0]+=1;}
     if(keyHoldFrames[40]>0&&(keyHoldFrames[40]-1)%arr==0){moves[1]=1;}
@@ -132,6 +135,7 @@ public class JFrameCompBase extends JComponent{
     board.nextFrame(moves);
     imageList=board.updateList();
     holdList=board.updateHold();
+    nextList=board.populateNext();
     /*
     for(int i=0;i<elementList.length;i++){
         if(elementList[i]!=null){

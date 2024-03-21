@@ -4,13 +4,14 @@ import java.util.Random;
 import javax.imageio.ImageIO;
 
 public class Board{
-    Random rand=new Random();
+    Random rand=new Random();boolean heldSwap=false;
     int w;int h;int w2;int h2;BufferedImage[]images=new BufferedImage[9];
     int blockSize=20;int blockSpacing=20;
+    boolean[]bag=new boolean[7];
     int[][]mainList;int[][]piecePoints;int[][]ghostPiece;
-    Piece currentPiece;
+    Piece currentPiece;int[]nextQueue=new int[5];
     JFrameImage[][]imageList;
-    JFrameImage[]holdPiece=new JFrameImage[4];int holdPieceIndex=1;
+    JFrameImage[]holdPiece=new JFrameImage[4];int holdPieceIndex=-1;
     JFrameImage[][]nextPieces=new JFrameImage[5][4];int[]nextPiecesIndex=new int[5];
     public Board(int width,int height,int width2,int height2){
         try{
@@ -25,11 +26,10 @@ public class Board{
     }
 
     public void nextFrame(int[]moveAmounts){
-        //clear last position
         eraseIndex(8);
         if(piecePoints!=null){for(int i=0;i<piecePoints.length;i++){mainList[piecePoints[i][0]][piecePoints[i][1]]=0;}}
 
-
+        if(!heldSwap&&moveAmounts[3]==1){swapHoldPiece();heldSwap=true;}
         rotateWithKick(moveAmounts[2]);
 
         moveWithCheck(moveAmounts[0],moveAmounts[1]);
@@ -42,31 +42,23 @@ public class Board{
 
     public boolean[]detectFilledLines(){
         boolean[]tempArray=new boolean[h];
-        for(int i=0;i<h;i++){
-            if(isRowFilled(i+4)){tempArray[i]=true;}
-        }
-        
-        return tempArray;
-    }
+        for(int i=0;i<h;i++){if(isRowFilled(i+4)){tempArray[i]=true;}}
+        return tempArray;}
 
     public void drawPiece(){
         piecePoints=currentPiece.getAdjustedArray();
         for(int i=0;i<piecePoints.length;i++){
-            mainList[piecePoints[i][0]][piecePoints[i][1]]=1;
-        }
-    }
+            mainList[piecePoints[i][0]][piecePoints[i][1]]=1;}}
 
     public boolean calculateGhost(){
         ghostPiece=currentPiece.getAdjustedArray();
         for(int j=0;j<h+4;j++){
             if(!testValidPosition(ghostPiece)){
                 for(int i=0;i<ghostPiece.length;i++){
-                    ghostPiece[i][1]-=1;
-                }
+                    ghostPiece[i][1]-=1;}
                 return true;}
             for(int i=0;i<ghostPiece.length;i++){
-                ghostPiece[i][1]+=1;
-            }
+                ghostPiece[i][1]+=1;}
         }
         return false;
     }
@@ -87,15 +79,10 @@ public class Board{
         }
     }
 
-
     public boolean isRowFilled(int row){
         boolean temp=true;
-        for(int i=0;i<w;i++){
-            if(listWithoutCurrent()[i][row]==0){temp=false;}
-        }
-        return temp;
-    }
-
+        for(int i=0;i<w;i++){if(listWithoutCurrent()[i][row]==0){temp=false;}}
+        return temp;}
 
     public void clearLine(int row){
         for(int x=0;x<w;x++){
@@ -118,7 +105,38 @@ public class Board{
         for(int i=0;i<modifyArray.length;i++){
             mainList[modifyArray[i][0]][modifyArray[i][1]]=1;
         }
-        currentPiece=new Piece(rand.nextInt(7),0,3,2);
+        heldSwap=false;
+        spawnNewPiece(-1);
+    }
+
+    public void spawnNewPiece(int index){
+        if(index==-1){currentPiece=new Piece(nextQueue[0],0,3,2);advanceQueue();}
+        else{currentPiece=new Piece(index,0,3,2);}
+    }
+
+    public void populateQueue(){
+        bag=new boolean[]{true,true,true,true,true,true,true};
+        for(int i2=0;i2<nextQueue.length;i2++){
+            int bagCount=0;
+            for(int i=0;i<bag.length;i++){
+                if(bag[i]){bagCount+=1;}
+            }
+            int selection=rand.nextInt(bagCount);bagCount=-1;
+            for(int i=0;i<bag.length;i++){
+                if(bag[i]){
+                    bagCount+=1;
+                    if(bagCount==selection){selection=i;bagCount=100;}
+                }
+            }
+            for(int i=0;i<nextQueue.length-1;i++){
+                nextQueue[i]=nextQueue[i+1];
+            }
+            nextQueue[nextQueue.length-1]=selection;
+        }
+    }
+
+    public void advanceQueue(){
+
     }
 
     public int[][]listWithoutCurrent(){
@@ -146,7 +164,6 @@ public class Board{
         int[][]tempArray=currentPiece.getMovedArray2(0,0,currentPiece.getRotatedArray(rotate));
         //System.out.println(tempArray[0][1]);
         if(testValidPosition(tempArray)){currentPiece.rotate(rotate);return true;}return false;
-
     }
 
     public boolean rotateWithKick(int rotate){
@@ -201,11 +218,19 @@ public class Board{
     }
 
 
+    public void swapHoldPiece(){
+        int temp=currentPiece.pieceNum;
+        spawnNewPiece(holdPieceIndex);
+        holdPieceIndex=temp;
+    }
+
     public JFrameImage[]updateHold(){
         //JFrameImage[]tempArray=new JFrameImage[4];
-        int[][]tempArray=Piece.rotations[holdPieceIndex][0];
-        for(int i=0;i<holdPiece.length;i++){
-            holdPiece[i].setPos((int)(tempArray[i][0]*blockSpacing+imageList[0][0].xpos-100),(int)(tempArray[i][1]*blockSpacing+imageList[0][0].ypos+blockSpacing));
+        if(holdPieceIndex>-1){
+            int[][]tempArray=Piece.rotations[holdPieceIndex][0];
+            for(int i=0;i<holdPiece.length;i++){
+                holdPiece[i].setPos((int)(tempArray[i][0]*blockSpacing+imageList[0][0].xpos-100),(int)(tempArray[i][1]*blockSpacing+imageList[0][0].ypos+blockSpacing));
+            }
         }
         return holdPiece;
     }
@@ -216,6 +241,17 @@ public class Board{
             holdPiece[y]=new JFrameImage(rand.nextInt(500), rand.nextInt(500), blockSize, blockSize,0,images[0]);
         }
         return holdPiece;
+    }
+
+    public JFrameImage[][]populateNext(){
+        //JFrameImage[]tempArray=new JFrameImage[4];
+        //JFrameImage[]returnArray=new JFrameImage[nextPieces.length*nextPieces[0].length];
+        for(int y=0;y<nextPieces.length;y++){
+            for(int x=0;x<nextPieces[0].length;x++){
+                nextPieces[y][x]=new JFrameImage(rand.nextInt(500), rand.nextInt(500), blockSize, blockSize,0,images[0]);
+            }
+        }
+        return nextPieces;
     }
 
     public JFrameImage[][]updateList(){
