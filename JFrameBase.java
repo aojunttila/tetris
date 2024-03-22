@@ -94,7 +94,7 @@ public class JFrameBase extends JFrame{
       public void keyTyped(KeyEvent e){}
       public void keyPressed(KeyEvent e){
         pressedKeys[e.getKeyCode()]=true;
-        System.out.println(e.getKeyCode());
+        //System.out.println(e.getKeyCode());
       }
       public void keyReleased(KeyEvent e){
         if(keyHoldFrames[e.getKeyCode()]>0){pressedKeys[e.getKeyCode()]=false;}

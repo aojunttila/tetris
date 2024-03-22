@@ -8,7 +8,7 @@ import java.util.Random;
 
 public class JFrameCompBase extends JComponent{
     JPanel panel;JFrameImage[][]imageList;JFrameImage[]holdList;JFrameImage[][]nextList;
-    int sidething=0;int das=10;int arr=2;
+    int sidething=0;int das=6;int arr=2;int fallRate=10;
     JFrameImage img;
     long timeStart,timeSinceStart;
     long framecounter;
@@ -17,7 +17,7 @@ public class JFrameCompBase extends JComponent{
     BufferedImage bufferImage,textLayer;
     Graphics2D bufferG,bufferGText;
     int width;Board board;
-    int currentFPS;
+    int currentFPS;long framecount=0;
     boolean imageOver;
     JFramePolygon testpoly;
     JFrameText text;
@@ -25,7 +25,7 @@ public class JFrameCompBase extends JComponent{
     Random rand=new Random();
     JFrameImage[]elementList=new JFrameImage[2000];
     JFramePolygon[]polyList=new JFramePolygon[2000];
-    JFrameParticleImage testEmitter;
+    JFrameParticleImage testEmitter;JFramePolygon boardOutline;
     JFrameParticlePolygon testEmitter2;
     public JFrameCompBase(JPanel panel2,int w,int h){
         width=w;height=h;
@@ -35,6 +35,7 @@ public class JFrameCompBase extends JComponent{
         bufferGText = (Graphics2D) textLayer.createGraphics();
         h2=bufferImage.getHeight();
         panel=panel2;board=new Board(10,20,width,height);
+
         timeStart=System.nanoTime();
         g2=(Graphics2D)panel.getGraphics();
         try {
@@ -59,6 +60,12 @@ public class JFrameCompBase extends JComponent{
         board.populateNext();
         panel.add(text.getObject());
         text.getObject().setVisible(false);
+
+        int e=0;
+        boardOutline=new JFramePolygon(
+            new int[]{board.imageList[0][0].getXPos()-e,board.imageList[9][0].getXPos()+board.blockSpacing+e,board.imageList[9][0].getXPos()+board.blockSpacing+e,board.imageList[0][0].getXPos()-e},
+            new int[]{board.imageList[0][0].getYPos()-e,board.imageList[0][0].getYPos()-e,board.imageList[0][23].getYPos()+board.blockSpacing+e,board.imageList[0][23].getYPos()+board.blockSpacing+e},
+            Color.WHITE,Color.BLACK,5f);
         
         //text.getObject().paint(bufferG);
         //text.getObject().setVisible(true);
@@ -91,6 +98,7 @@ public class JFrameCompBase extends JComponent{
    }
 
    public void render(Graphics2D gb){
+    boardOutline.draw(bufferG);
     //bufferG.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
     if(imageList!=null){for(int x=0;x<imageList.length;x++){
     for(int y=0;y<imageList[0].length;y++){imageList[x][y].draw(bufferG);}}}
@@ -113,6 +121,7 @@ public class JFrameCompBase extends JComponent{
 
 
    public void nextFrame(int mouseX,int mouseY,boolean mouseDown,boolean[]pressedKeys){
+    framecount+=1;
     //text.setText("bigger");
     for(int i=0;i<keyHoldFrames.length;i++){if(pressedKeys[i]){keyHoldFrames[i]+=1;}else{keyHoldFrames[i]=0;}}
     //up 38, down 40, left 37, right 39, z 90, x 88, c 67, space 32
@@ -123,19 +132,22 @@ public class JFrameCompBase extends JComponent{
     if(keyHoldFrames[65]==1||(keyHoldFrames[65]>das&&(keyHoldFrames[65]%arr)==0)){moves[2]=3;}
     if(keyHoldFrames[83]==1||(keyHoldFrames[83]>das&&(keyHoldFrames[83]%arr)==0)){moves[2]=2;}
     if(keyHoldFrames[68]==1||(keyHoldFrames[68]>das&&(keyHoldFrames[68]%arr)==0)){moves[2]=1;}
+
     
-    if(keyHoldFrames[32]==1){moves[1]=24;}
     if(keyHoldFrames[87]==1){moves[3]=1;}
     if(keyHoldFrames[37]==1||(keyHoldFrames[37]>das&&(keyHoldFrames[37]%arr)==0)){moves[0]-=1;}
     if(keyHoldFrames[39]==1||(keyHoldFrames[39]>das&&(keyHoldFrames[39]%arr)==0)){moves[0]+=1;}
+    if(keyHoldFrames[37]>das&&keyHoldFrames[39]>das){moves[0]=0;}
     if(keyHoldFrames[40]>0&&(keyHoldFrames[40]-1)%arr==0){moves[1]=1;}
-    
+
+    if(framecount%fallRate==0){moves[1]+=1;}
+    if(keyHoldFrames[32]==1){moves[1]=24;}
     
     
     board.nextFrame(moves);
     imageList=board.updateList();
     holdList=board.updateHold();
-    nextList=board.populateNext();
+    nextList=board.updateNext();
     /*
     for(int i=0;i<elementList.length;i++){
         if(elementList[i]!=null){

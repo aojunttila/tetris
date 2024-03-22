@@ -5,34 +5,62 @@ import javax.imageio.ImageIO;
 
 public class Board{
     Random rand=new Random();boolean heldSwap=false;
-    int w;int h;int w2;int h2;BufferedImage[]images=new BufferedImage[9];
+    int w;int h;int w2;int h2;BufferedImage[]images=new BufferedImage[11];
     int blockSize=20;int blockSpacing=20;
-    boolean[]bag=new boolean[7];
+    boolean[]bag=new boolean[7];int framesOnGround=0;
     int[][]mainList;int[][]piecePoints;int[][]ghostPiece;
     Piece currentPiece;int[]nextQueue=new int[5];
-    JFrameImage[][]imageList;
+    JFrameImage[][]imageList;boolean touchingGround=false;
     JFrameImage[]holdPiece=new JFrameImage[4];int holdPieceIndex=-1;
     JFrameImage[][]nextPieces=new JFrameImage[5][4];int[]nextPiecesIndex=new int[5];
+    int[][]pieceOffset;
     public Board(int width,int height,int width2,int height2){
+        String texturePack="basic";
         try{
-            images[0]=ImageIO.read(new File("tetris1.png"));
-            images[1]=ImageIO.read(new File("tetris2.png"));
-            images[8]=ImageIO.read(new File("glow.png"));
+            images[0]=ImageIO.read(new File("textures/"+texturePack+"/background.png"));
+            images[1]=ImageIO.read(new File("textures/"+texturePack+"/Ipiece.png"));
+            images[2]=ImageIO.read(new File("textures/"+texturePack+"/Jpiece.png"));
+            images[3]=ImageIO.read(new File("textures/"+texturePack+"/Lpiece.png"));
+            images[4]=ImageIO.read(new File("textures/"+texturePack+"/Opiece.png"));
+            images[5]=ImageIO.read(new File("textures/"+texturePack+"/Spiece.png"));
+            images[6]=ImageIO.read(new File("textures/"+texturePack+"/Tpiece.png"));
+            images[7]=ImageIO.read(new File("textures/"+texturePack+"/Zpiece.png"));
+            images[8]=ImageIO.read(new File("textures/"+texturePack+"/ghostpiece.png"));
+            images[9]=ImageIO.read(new File("textures/"+texturePack+"/topbackground.png"));
+            images[10]=ImageIO.read(new File("textures/"+texturePack+"/usedhold.png"));
         }catch(Exception e){}
+        pieceOffset=new int[][]{
+            {0,-(blockSpacing/2)},
+            {blockSpacing/2,0},
+            {blockSpacing/2,0},
+            {0,0},
+            {blockSpacing/2,0},
+            {blockSpacing/2,0},
+            {blockSpacing/2,0}
+        };
+        //I,J,L,O,S,T,Z
         w=width;h=height;w2=width2;h2=height2;
         mainList=new int[w][];imageList=new JFrameImage[w][];
         for(int i=0;i<mainList.length;i++){mainList[i]=new int[h+4];imageList[i]=new JFrameImage[h+4];}
-        currentPiece=new Piece(2,0,3,2);
+        populateQueue();
+        spawnNewPiece(-1);
+        //currentPiece=new Piece(2,0,3,2);
+        
     }
 
     public void nextFrame(int[]moveAmounts){
         eraseIndex(8);
         if(piecePoints!=null){for(int i=0;i<piecePoints.length;i++){mainList[piecePoints[i][0]][piecePoints[i][1]]=0;}}
 
+        if(testValidPosition(currentPiece.getMovedArray(0,1))){touchingGround=false;}else{touchingGround=true;framesOnGround+=1;}
+        if(currentPiece.lockTimer<framesOnGround&&touchingGround==true){lockIn();}
+        if((moveAmounts[0]!=0||moveAmounts[2]!=0)&&currentPiece.lockTimer<80&&touchingGround){currentPiece.lockTimer=framesOnGround+15;}
+
         if(!heldSwap&&moveAmounts[3]==1){swapHoldPiece();heldSwap=true;}
         rotateWithKick(moveAmounts[2]);
 
         moveWithCheck(moveAmounts[0],moveAmounts[1]);
+        if(moveAmounts[1]==24){lockIn();}
         drawPiece();
         clearLines(detectFilledLines());
         calculateGhost();
@@ -48,7 +76,7 @@ public class Board{
     public void drawPiece(){
         piecePoints=currentPiece.getAdjustedArray();
         for(int i=0;i<piecePoints.length;i++){
-            mainList[piecePoints[i][0]][piecePoints[i][1]]=1;}}
+            mainList[piecePoints[i][0]][piecePoints[i][1]]=currentPiece.pieceNum+1;}}
 
     public boolean calculateGhost(){
         ghostPiece=currentPiece.getAdjustedArray();
@@ -103,13 +131,15 @@ public class Board{
     public void lockIn(){
         int[][]modifyArray=currentPiece.getAdjustedArray();
         for(int i=0;i<modifyArray.length;i++){
-            mainList[modifyArray[i][0]][modifyArray[i][1]]=1;
+            mainList[modifyArray[i][0]][modifyArray[i][1]]=currentPiece.pieceNum+1;
         }
         heldSwap=false;
         spawnNewPiece(-1);
+        System.out.println(nextQueue[0]);
     }
 
     public void spawnNewPiece(int index){
+        framesOnGround=0;
         if(index==-1){currentPiece=new Piece(nextQueue[0],0,3,2);advanceQueue();}
         else{currentPiece=new Piece(index,0,3,2);}
     }
@@ -117,26 +147,31 @@ public class Board{
     public void populateQueue(){
         bag=new boolean[]{true,true,true,true,true,true,true};
         for(int i2=0;i2<nextQueue.length;i2++){
-            int bagCount=0;
-            for(int i=0;i<bag.length;i++){
-                if(bag[i]){bagCount+=1;}
-            }
-            int selection=rand.nextInt(bagCount);bagCount=-1;
-            for(int i=0;i<bag.length;i++){
-                if(bag[i]){
-                    bagCount+=1;
-                    if(bagCount==selection){selection=i;bagCount=100;}
-                }
-            }
+            
             for(int i=0;i<nextQueue.length-1;i++){
                 nextQueue[i]=nextQueue[i+1];
             }
-            nextQueue[nextQueue.length-1]=selection;
+            nextQueue[nextQueue.length-1]=nextPiece();
         }
     }
 
-    public void advanceQueue(){
+    public int nextPiece(){
+        int bagCount=0;int selection;
+        for(int i=0;i<bag.length;i++){if(bag[i]){bagCount+=1;}}
+        if(bagCount==0){selection=rand.nextInt(bag.length);
+        bag=new boolean[]{true,true,true,true,true,true,true};}
+        else{selection=rand.nextInt(bagCount);}
+        bagCount=-1;
+        for(int i=0;i<bag.length;i++){
+            if(bag[i]){bagCount+=1;if(bagCount==selection){selection=i;bagCount=100;}}}
+        bag[selection]=false;return selection;
+    }
 
+    public void advanceQueue(){
+        for(int i=0;i<nextQueue.length-1;i++){
+            nextQueue[i]=nextQueue[i+1];
+        }
+        nextQueue[nextQueue.length-1]=nextPiece();
     }
 
     public int[][]listWithoutCurrent(){
@@ -157,7 +192,7 @@ public class Board{
         }
         int[][]tempArray=currentPiece.getMovedArray(x,0);
         if(testValidPosition(tempArray)){currentPiece.move(x,0);}
-        if(lockIn){lockIn();}
+        //if(lockIn){lockIn();}
     }
 
     public boolean rotateWithCheck(int rotate){
@@ -229,8 +264,12 @@ public class Board{
         if(holdPieceIndex>-1){
             int[][]tempArray=Piece.rotations[holdPieceIndex][0];
             for(int i=0;i<holdPiece.length;i++){
-                holdPiece[i].setPos((int)(tempArray[i][0]*blockSpacing+imageList[0][0].xpos-100),(int)(tempArray[i][1]*blockSpacing+imageList[0][0].ypos+blockSpacing));
+                holdPiece[i].setPos(
+                    pieceOffset[holdPieceIndex][0]+(int)(tempArray[i][0]*blockSpacing+imageList[0][0].xpos-blockSpacing*5),
+                    pieceOffset[holdPieceIndex][1]+(int)(tempArray[i][1]*blockSpacing+imageList[0][0].ypos+blockSpacing));
+                if(heldSwap){holdPiece[i].image=images[10];}else{holdPiece[i].image=images[holdPieceIndex+1];}
             }
+            
         }
         return holdPiece;
     }
@@ -238,7 +277,7 @@ public class Board{
     public JFrameImage[]populateHold(){
         //JFrameImage[]tempArray=new JFrameImage[4];
         for(int y=0;y<holdPiece.length;y++){
-            holdPiece[y]=new JFrameImage(rand.nextInt(500), rand.nextInt(500), blockSize, blockSize,0,images[0]);
+            holdPiece[y]=new JFrameImage(rand.nextInt(500), rand.nextInt(500), blockSize, blockSize,0,images[1]);
         }
         return holdPiece;
     }
@@ -248,16 +287,33 @@ public class Board{
         //JFrameImage[]returnArray=new JFrameImage[nextPieces.length*nextPieces[0].length];
         for(int y=0;y<nextPieces.length;y++){
             for(int x=0;x<nextPieces[0].length;x++){
-                nextPieces[y][x]=new JFrameImage(rand.nextInt(500), rand.nextInt(500), blockSize, blockSize,0,images[0]);
+                nextPieces[y][x]=new JFrameImage(rand.nextInt(500), rand.nextInt(500), blockSize, blockSize,0,images[1]);
             }
         }
         return nextPieces;
     }
 
+    public JFrameImage[][]updateNext(){
+        //JFrameImage[]tempArray=new JFrameImage[4];
+        for(int a=0;a<nextPieces.length;a++){
+            int[][]tempArray=Piece.rotations[nextQueue[a]][0];
+            for(int b=0;b<4;b++){
+                nextPieces[a][b].setPos(
+                    pieceOffset[nextQueue[a]][0]+(int)(tempArray[b][0]*blockSpacing+imageList[0][0].xpos+blockSpacing*10+blockSpacing),
+                    pieceOffset[nextQueue[a]][1]+(int)(tempArray[b][1]*blockSpacing+imageList[0][0].ypos+blockSpacing+a*blockSpacing*3));
+                nextPieces[a][b].image=images[nextQueue[a]+1];
+            }
+        }
+        return nextPieces;
+    }
+
+
     public JFrameImage[][]updateList(){
         for(int x=0;x<imageList.length;x++){
             for(int y=0;y<imageList[0].length;y++){
-                imageList[x][y].image=images[mainList[x][y]];
+                if(mainList[x][y]==0&&y<4){imageList[x][y].image=images[10];}
+                else{imageList[x][y].image=images[mainList[x][y]];}
+                
             }
         }
         return imageList;

@@ -4,6 +4,7 @@ import java.util.Random;
 public class Piece {
     Random rand=new Random();
     int pieceNum;//I,J,L,O,S,T,Z
+    int lockTimer;
     int rotation;int[][]currentArray;
     int xPos;int yPos;
     static int[][][][]rotations={//peiceNum,rotation,pointnum,x/y
@@ -28,7 +29,7 @@ public class Piece {
     public Piece(int pieceNum2,int rotation2,int x,int y){
         pieceNum=pieceNum2;rotation=rotation2;
         currentArray=rotations[pieceNum][rotation];
-        xPos=x;yPos=y;
+        xPos=x;yPos=y;lockTimer=10;
     }
 
     public int[][]getPointArray(){
