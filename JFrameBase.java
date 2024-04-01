@@ -29,7 +29,7 @@ public class JFrameBase extends JFrame{
     public JFrameBase(){
       h=(int)Toolkit.getDefaultToolkit().getScreenSize().getHeight();
       w=(int)Toolkit.getDefaultToolkit().getScreenSize().getWidth();
-      Util ut=new Util();
+      //Util ut=new Util();
       i=new BufferedImage(w,h,BufferedImage.TYPE_INT_RGB);
       frame=new JFrame();
       panel=new JPanel();
@@ -55,9 +55,9 @@ public class JFrameBase extends JFrame{
       ///*
       ScheduledExecutorService executor=Executors.newScheduledThreadPool(1);
       Runnable task=()->{
-        if(framecount>1){ut.startTimer();}
+        //if(framecount>1){ut.startTimer();}
         comp.nextFrame(mouseX,mouseY,mouseDown,pressedKeys);
-        if(framecount>1){frametimes.add(ut.stopTimer(false));}
+        //if(framecount>1){frametimes.add(ut.stopTimer(false));}
         framecount+=1;
         //System.out.println(mouseX+" "+mouseY);
         for(int i=0;i<pressedKeys.length;i++){
@@ -72,7 +72,6 @@ public class JFrameBase extends JFrame{
         comp.repaint();
       };
       executor2.scheduleAtFixedRate(task2,0,1000/1000,TimeUnit.MILLISECONDS);      
-
 
       ///*
     panel.addMouseWheelListener(new MouseWheelListener(){

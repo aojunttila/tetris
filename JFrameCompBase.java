@@ -3,6 +3,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.awt.image.BufferedImage;
+import java.awt.image.RescaleOp;
 import java.util.Random;
 
 
@@ -20,7 +21,7 @@ public class JFrameCompBase extends JComponent{
     int currentFPS;long framecount=0;
     boolean imageOver;
     JFramePolygon testpoly;
-    JFrameText text;
+    JFrameText text;RescaleOp rescaleOp=new RescaleOp(1.2f,15,null);
     int height;int h2;
     Random rand=new Random();
     JFrameImage[]elementList=new JFrameImage[2000];
@@ -76,12 +77,14 @@ public class JFrameCompBase extends JComponent{
    @Override
    public void paintComponent(Graphics g)
    {
+    
     bufferG.clearRect(0,0,width, height);
     Graphics g3 = g; 
         g3.setColor(Color.black);
         g3.fillRect(0,0,width,height);  
         bufferG.clearRect(0,0,width, height);
-        render((Graphics2D)g);   
+        render((Graphics2D)g);  
+        
         g3.drawImage(bufferImage, 0, 0, null);
         
 

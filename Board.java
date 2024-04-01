@@ -1,4 +1,5 @@
 import java.awt.image.BufferedImage;
+import java.awt.image.RescaleOp;
 import java.io.File;
 import java.util.Random;
 import javax.imageio.ImageIO;
@@ -6,17 +7,16 @@ import javax.imageio.ImageIO;
 public class Board{
     Random rand=new Random();boolean heldSwap=false;
     int w;int h;int w2;int h2;BufferedImage[]images=new BufferedImage[11];
-    int blockSize=20;int blockSpacing=20;
+    int blockSize=20;int blockSpacing=20;int pauseFrames=0;
     boolean[]bag=new boolean[7];int framesOnGround=0;
     int[][]mainList;int[][]piecePoints;int[][]ghostPiece;
-    Piece currentPiece;int[]nextQueue=new int[5];
+    Piece currentPiece;int[]nextQueue=new int[5];boolean reset;
     JFrameImage[][]imageList;boolean touchingGround=false;
     JFrameImage[]holdPiece=new JFrameImage[4];int holdPieceIndex=-1;
     JFrameImage[][]nextPieces=new JFrameImage[5][4];int[]nextPiecesIndex=new int[5];
-    int[][]pieceOffset;
+    int[][]pieceOffset;RescaleOp rescaleOp=new RescaleOp(0.99f,0,null);
     public Board(int width,int height,int width2,int height2){
-        String texturePack="basic";
-        try{
+        String texturePack="basic";try{
             images[0]=ImageIO.read(new File("textures/"+texturePack+"/background.png"));
             images[1]=ImageIO.read(new File("textures/"+texturePack+"/Ipiece.png"));
             images[2]=ImageIO.read(new File("textures/"+texturePack+"/Jpiece.png"));
@@ -30,14 +30,9 @@ public class Board{
             images[10]=ImageIO.read(new File("textures/"+texturePack+"/usedhold.png"));
         }catch(Exception e){}
         pieceOffset=new int[][]{
-            {0,-(blockSpacing/2)},
-            {blockSpacing/2,0},
-            {blockSpacing/2,0},
-            {0,0},
-            {blockSpacing/2,0},
-            {blockSpacing/2,0},
-            {blockSpacing/2,0}
-        };
+            {0,-(blockSpacing/2)},{blockSpacing/2,0},
+            {blockSpacing/2,0},{0,0},{blockSpacing/2,0},
+            {blockSpacing/2,0},{blockSpacing/2,0}};
         //I,J,L,O,S,T,Z
         w=width;h=height;w2=width2;h2=height2;
         mainList=new int[w][];imageList=new JFrameImage[w][];
@@ -45,26 +40,26 @@ public class Board{
         populateQueue();
         spawnNewPiece(-1);
         //currentPiece=new Piece(2,0,3,2);
-        
     }
 
     public void nextFrame(int[]moveAmounts){
-        eraseIndex(8);
-        if(piecePoints!=null){for(int i=0;i<piecePoints.length;i++){mainList[piecePoints[i][0]][piecePoints[i][1]]=0;}}
+        if(pauseFrames>0){pauseFrames-=1;}else{
+            eraseIndex(8);
+            if(piecePoints!=null){for(int i=0;i<piecePoints.length;i++){mainList[piecePoints[i][0]][piecePoints[i][1]]=0;}}
 
-        if(testValidPosition(currentPiece.getMovedArray(0,1))){touchingGround=false;}else{touchingGround=true;framesOnGround+=1;}
-        if(currentPiece.lockTimer<framesOnGround&&touchingGround==true){lockIn();}
-        if((moveAmounts[0]!=0||moveAmounts[2]!=0)&&currentPiece.lockTimer<80&&touchingGround){currentPiece.lockTimer=framesOnGround+15;}
+            if(testValidPosition(currentPiece.getMovedArray(0,1))){touchingGround=false;}else{touchingGround=true;framesOnGround+=1;}
+            if(currentPiece.lockTimer<framesOnGround&&touchingGround==true){lockIn();}
+            if((moveAmounts[0]!=0||moveAmounts[2]!=0)&&currentPiece.lockTimer<80&&touchingGround){currentPiece.lockTimer=framesOnGround+15;}
 
-        if(!heldSwap&&moveAmounts[3]==1){swapHoldPiece();heldSwap=true;}
-        rotateWithKick(moveAmounts[2]);
+            if(!heldSwap&&moveAmounts[3]==1){swapHoldPiece();heldSwap=true;}
+            rotateWithKick(moveAmounts[2]);
 
-        moveWithCheck(moveAmounts[0],moveAmounts[1]);
-        if(moveAmounts[1]==24){lockIn();}
-        drawPiece();
-        clearLines(detectFilledLines());
-        calculateGhost();
-        drawGhost();
+            moveWithCheck(moveAmounts[0],moveAmounts[1]);
+            if(moveAmounts[1]==24){lockIn();}
+            drawPiece();
+            clearLines(detectFilledLines());
+            calculateGhost();
+            drawGhost();}
         //System.out.println("hi");
     }
 
@@ -102,7 +97,7 @@ public class Board{
     public void eraseIndex(int index){
         for(int x=0;x<mainList.length;x++){
             for(int y=0;y<mainList[0].length;y++){
-                if(mainList[x][y]==index){mainList[x][y]=0;}
+                if(mainList[x][y]==index||index==-1){mainList[x][y]=0;}
             }
         }
     }
@@ -140,8 +135,21 @@ public class Board{
 
     public void spawnNewPiece(int index){
         framesOnGround=0;
-        if(index==-1){currentPiece=new Piece(nextQueue[0],0,3,2);advanceQueue();}
-        else{currentPiece=new Piece(index,0,3,2);}
+        if(index==-1){
+            if(testValidPositionWithCurrent(new Piece(nextQueue[0],0,3,2).getAdjustedArray())){
+            currentPiece=new Piece(nextQueue[0],0,3,2);advanceQueue();}else{restart();}
+        }else{
+            if(testValidPosition(new Piece(index,0,3,2).getAdjustedArray())){
+            currentPiece=new Piece(index,0,3,2);}else{restart();}
+        }
+    }
+
+    public void restart(){
+        pauseFrames=30;
+        eraseIndex(-1);
+        holdPieceIndex=-1;
+        populateQueue();
+        spawnNewPiece(-1);
     }
 
     public void populateQueue(){
@@ -236,9 +244,16 @@ public class Board{
             if(tempArray[i][0]>=w||tempArray[i][0]<0){temp=false;}
             if(tempArray[i][1]>=h+4||tempArray[i][1]<0){temp=false;}
             if(temp&&mainList[tempArray[i][0]][tempArray[i][1]]!=0&&!coordsInPiece(tempArray[i][0],tempArray[i][1])){temp=false;}
-        }
-        
-        return temp;
+        }return temp;
+    }
+
+    public boolean testValidPositionWithCurrent(int[][]tempArray){
+        boolean temp=true;
+        for(int i=0;i<tempArray.length;i++){
+            if(tempArray[i][0]>=w||tempArray[i][0]<0){temp=false;}
+            if(tempArray[i][1]>=h+4||tempArray[i][1]<0){temp=false;}
+            if(temp&&mainList[tempArray[i][0]][tempArray[i][1]]!=0){temp=false;}
+        }return temp;
     }
 
     public boolean coordsInPiece(int x,int y){
@@ -313,6 +328,9 @@ public class Board{
             for(int y=0;y<imageList[0].length;y++){
                 if(mainList[x][y]==0&&y<4){imageList[x][y].image=images[10];}
                 else{imageList[x][y].image=images[mainList[x][y]];}
+                if(mainList[x][y]!=0){
+                    //rescaleOp.filter(images[mainList[x][y]],imageList[x][y].image); 
+                }
                 
             }
         }
@@ -328,4 +346,5 @@ public class Board{
         }
         return imageList;
     }
+
 }
