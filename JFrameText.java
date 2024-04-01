@@ -2,6 +2,7 @@ import java.awt.Graphics2D;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import java.awt.Color;
+import java.awt.Font;
 
 public class JFrameText extends JComponent
 {
@@ -25,6 +26,7 @@ public class JFrameText extends JComponent
     label.setForeground(Color.WHITE);
     setLocation(100,100);
     label.setLocation(100,100);
+    label.setFont(new Font("Monospaced", Font.BOLD, 16));
   }
 
   public void draw(Graphics2D g2){

@@ -21,10 +21,10 @@ public class JFrameCompBase extends JComponent{
     Graphics2D bufferG,bufferGText;
     int width;Board board;
     int currentFPS;long framecount=0;
-    boolean imageOver;
+    boolean imageOver;int topX;int topY;
     JFramePolygon testpoly;
     JFrameText text;JFrameText[]texts;RescaleOp rescaleOp=new RescaleOp(1.2f,15,null);
-    int height;int h2;
+    int height;int h2;long msSinceStart;
     Random rand=new Random();
     JFrameImage[]elementList=new JFrameImage[2000];
     JFramePolygon[]polyList=new JFramePolygon[2000];
@@ -34,9 +34,6 @@ public class JFrameCompBase extends JComponent{
         width=w;height=h;
         bufferImage=new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         textLayer=new BufferedImage(100, 100, BufferedImage.TYPE_INT_ARGB);
-
-
-
         bufferG=(Graphics2D) bufferImage.createGraphics();
         bufferGText = (Graphics2D) textLayer.createGraphics();
         
@@ -73,19 +70,21 @@ public class JFrameCompBase extends JComponent{
             new int[]{board.imageList[0][0].getXPos()-e,board.imageList[9][0].getXPos()+board.blockSpacing+e,board.imageList[9][0].getXPos()+board.blockSpacing+e,board.imageList[0][0].getXPos()-e},
             new int[]{board.imageList[0][0].getYPos()-e,board.imageList[0][0].getYPos()-e,board.imageList[0][23].getYPos()+board.blockSpacing+e,board.imageList[0][23].getYPos()+board.blockSpacing+e},
             Color.WHITE,Color.BLACK,5f);
+        topX=board.imageList[0][0].getXPos();topY=board.imageList[0][0].getYPos();
 
         textLayers=new BufferedImage[textCount];
         bufferText=new Graphics2D[textCount];
         texts=new JFrameText[textCount];
         for(int i=0;i<textCount;i++){
-            textLayers[i]=new BufferedImage(100,50,BufferedImage.TYPE_INT_ARGB);
+            textLayers[i]=new BufferedImage(120,50,BufferedImage.TYPE_INT_ARGB);
             bufferText[i]=textLayers[i].createGraphics();
             texts[i]=new JFrameText("hi");
             panel.add(texts[i].getObject());
             texts[i].getObject().setVisible(false);}
-        texts[0].xpos=0;texts[0].ypos=0;
-        texts[1].xpos=0;texts[1].ypos=0;
-        texts[2].xpos=0;texts[2].ypos=0;
+            //Score, PPS, Time
+        texts[0].xpos=topX-140;texts[0].ypos=topY+400;
+        texts[1].xpos=topX-140;texts[1].ypos=topY+430;
+        texts[2].xpos=topX-140;texts[2].ypos=topY+460;
         
         //text.getObject().paint(bufferG);
         //text.getObject().setVisible(true);
@@ -94,53 +93,47 @@ public class JFrameCompBase extends JComponent{
 
 
     @Override
-    public void paintComponent(Graphics g)
-    {
-    
-    bufferG.clearRect(0,0,width, height);
-    Graphics g3 = g; 
+    public void paintComponent(Graphics g){
+        double secondsSinceStart=(System.nanoTime()-board.timeStart2)/1000000000d;
+        texts[0].setText("Score: "+board.pieceCount);
+        texts[1].setText("PPS: "+Math.round((board.pieceCount/secondsSinceStart)*100d)/100d);
+        texts[2].setText("Time: "+Math.round(secondsSinceStart*100d)/100d);
+
+        bufferG.clearRect(0,0,width, height);
+        Graphics g3 = g; 
         g3.setColor(Color.black);
         g3.fillRect(0,0,width,height);  
         bufferG.clearRect(0,0,width, height);
         render((Graphics2D)g);  
-        
         g3.drawImage(bufferImage, 0, 0, null);
-        
+        bufferGText.clearRect(0,0,width, height);
 
-    bufferGText.clearRect(0,0,width, height);
+        //text.draw(bufferGText);
+        text.getObject().paint(bufferGText);
 
-    //text.draw(bufferGText);
-    text.getObject().paint(bufferGText);
 
-    for(int i=0;i<textCount;i++){
-        bufferText[i].clearRect(0,0,width, height);
-        texts[i].getObject().paint(bufferText[i]);
-        g3.drawImage(textLayers[i],rand.nextInt(500),300,null);
-    }
-
-    g3.drawImage(textLayer,10,10,null);
-    g3.dispose();
-    timeSinceStart=(System.nanoTime()-timeStart)/1000;
-    if(timeSinceStart>1000000){timeStart+=1000000000;text.setText("FPS: "+framecounter);framecounter=0;}
-    framecounter+=1;
+        g3.drawImage(textLayer,10,10,null);
+        g3.dispose();
+        timeSinceStart=(System.nanoTime()-timeStart)/1000;
+        if(timeSinceStart>1000000){timeStart+=1000000000;text.setText("FPS: "+framecounter);framecounter=0;}
+        framecounter+=1;
     }
 
     public void render(Graphics2D gb){
-        boardOutline.draw(bufferG);
         //bufferG.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        for(int i=0;i<textCount;i++){
+            bufferText[i].clearRect(0,0,width, height);
+            texts[i].getObject().paint(bufferText[i]);
+            bufferG.drawImage(textLayers[i],texts[i].xpos,texts[i].ypos,null);}
+        boardOutline.draw(bufferG);
         if(imageList!=null){for(int x=0;x<imageList.length;x++){
         for(int y=0;y<imageList[0].length;y++){imageList[x][y].draw(bufferG);}}}
         if(holdList!=null&&board.holdPieceIndex!=-1){for(int y=0;y<holdList.length;y++){holdList[y].draw(bufferG);}}
         if(nextList!=null){for(int x=0;x<nextList.length;x++){
             for(int y=0;y<nextList[0].length;y++){nextList[x][y].draw(bufferG);}}}
-
         for(int i=0;i<elementList.length;i++){
             if(elementList[i]!=null){
-                elementList[i].draw(bufferG);
-                //polyList[i].draw(bufferG);
-            }
-            
-        }
+                elementList[i].draw(bufferG);}}
         if(imageOver){bufferG.drawImage(imageOverlay,0,0,width,height,null);}
     }
 

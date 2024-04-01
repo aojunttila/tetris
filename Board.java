@@ -8,8 +8,8 @@ public class Board{
     Random rand=new Random();boolean heldSwap=false;
     int w;int h;int w2;int h2;BufferedImage[]images=new BufferedImage[11];
     int blockSize=20;int blockSpacing=20;int pauseFrames=0;
-    boolean[]bag=new boolean[7];int framesOnGround=0;
-    int[][]mainList;int[][]piecePoints;int[][]ghostPiece;
+    boolean[]bag=new boolean[7];int framesOnGround=0;int pieceCount;
+    int[][]mainList;int[][]piecePoints;int[][]ghostPiece;long timeStart2;
     Piece currentPiece;int[]nextQueue=new int[5];boolean reset;
     JFrameImage[][]imageList;boolean touchingGround=false;
     JFrameImage[]holdPiece=new JFrameImage[4];int holdPieceIndex=-1;
@@ -40,6 +40,7 @@ public class Board{
         populateQueue();
         spawnNewPiece(-1);
         //currentPiece=new Piece(2,0,3,2);
+        timeStart2=System.nanoTime();
     }
 
     public void nextFrame(int[]moveAmounts){
@@ -126,11 +127,10 @@ public class Board{
     public void lockIn(){
         int[][]modifyArray=currentPiece.getAdjustedArray();
         for(int i=0;i<modifyArray.length;i++){
-            mainList[modifyArray[i][0]][modifyArray[i][1]]=currentPiece.pieceNum+1;
-        }
+            mainList[modifyArray[i][0]][modifyArray[i][1]]=currentPiece.pieceNum+1;}
         heldSwap=false;
         spawnNewPiece(-1);
-        System.out.println(nextQueue[0]);
+        pieceCount+=1;
     }
 
     public void spawnNewPiece(int index){
@@ -145,7 +145,9 @@ public class Board{
     }
 
     public void restart(){
-        pauseFrames=30;
+        pieceCount=0;
+        timeStart2=System.nanoTime();
+        //pauseFrames=30;
         eraseIndex(-1);
         holdPieceIndex=-1;
         populateQueue();
@@ -322,11 +324,10 @@ public class Board{
         return nextPieces;
     }
 
-
     public JFrameImage[][]updateList(){
         for(int x=0;x<imageList.length;x++){
             for(int y=0;y<imageList[0].length;y++){
-                if(mainList[x][y]==0&&y<4){imageList[x][y].image=images[10];}
+                if(mainList[x][y]==0&&y<4){imageList[x][y].image=images[9];}
                 else{imageList[x][y].image=images[mainList[x][y]];}
                 if(mainList[x][y]!=0){
                     //rescaleOp.filter(images[mainList[x][y]],imageList[x][y].image); 
