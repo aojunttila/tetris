@@ -12,6 +12,7 @@ public class JFrameText extends JComponent
   int[]arrayX,arrayY;
   float linewidth;
   int xScale;
+  int xpos,ypos;
   int yScale;
   int rotation;
   //AffineTransform at;

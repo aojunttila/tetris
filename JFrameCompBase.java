@@ -82,8 +82,10 @@ public class JFrameCompBase extends JComponent{
             bufferText[i]=textLayers[i].createGraphics();
             texts[i]=new JFrameText("hi");
             panel.add(texts[i].getObject());
-            texts[i].getObject().setVisible(false);
-        }
+            texts[i].getObject().setVisible(false);}
+        texts[0].xpos=0;texts[0].ypos=0;
+        texts[1].xpos=0;texts[1].ypos=0;
+        texts[2].xpos=0;texts[2].ypos=0;
         
         //text.getObject().paint(bufferG);
         //text.getObject().setVisible(true);
