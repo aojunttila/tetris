@@ -5,14 +5,14 @@ import java.util.Random;
 import javax.imageio.ImageIO;
 
 public class Board{
-    Random rand=new Random();boolean heldSwap=false;
+    Random rand=new Random();boolean heldSwap=false;boolean tspin=false;
     int w;int h;int w2;int h2;BufferedImage[]images=new BufferedImage[11];
-    int blockSize=20;int blockSpacing=20;int pauseFrames=0;
-    boolean[]bag=new boolean[7];int framesOnGround=0;int pieceCount;
+    int blockSize=20;int blockSpacing=20;int pauseFrames=0;int score=0;
+    boolean[]bag=new boolean[7];int framesOnGround=0;int pieceCount;boolean lockIn2=false;
     int[][]mainList;int[][]piecePoints;int[][]ghostPiece;long timeStart2;
-    Piece currentPiece;int[]nextQueue=new int[5];boolean reset;
-    JFrameImage[][]imageList;boolean touchingGround=false;
-    JFrameImage[]holdPiece=new JFrameImage[4];int holdPieceIndex=-1;
+    Piece currentPiece;int[]nextQueue=new int[5];boolean reset;int B2B;
+    JFrameImage[][]imageList;boolean touchingGround=false;int numFilledLines;
+    JFrameImage[]holdPiece=new JFrameImage[4];int holdPieceIndex=-1;String scoreType;
     JFrameImage[][]nextPieces=new JFrameImage[5][4];int[]nextPiecesIndex=new int[5];
     int[][]pieceOffset;RescaleOp rescaleOp=new RescaleOp(0.99f,0,null);
     public Board(int width,int height,int width2,int height2){
@@ -45,6 +45,7 @@ public class Board{
 
     public void nextFrame(int[]moveAmounts){
         if(pauseFrames>0){pauseFrames-=1;}else{
+            lockIn2=false;
             eraseIndex(8);
             if(piecePoints!=null){for(int i=0;i<piecePoints.length;i++){mainList[piecePoints[i][0]][piecePoints[i][1]]=0;}}
 
@@ -65,8 +66,8 @@ public class Board{
     }
 
     public boolean[]detectFilledLines(){
-        boolean[]tempArray=new boolean[h];
-        for(int i=0;i<h;i++){if(isRowFilled(i+4)){tempArray[i]=true;}}
+        boolean[]tempArray=new boolean[h];numFilledLines=0;
+        for(int i=0;i<h;i++){if(isRowFilled(i+4)){tempArray[i]=true;numFilledLines+=1;}}
         return tempArray;}
 
     public void drawPiece(){
@@ -111,7 +112,7 @@ public class Board{
     public void clearLine(int row){
         for(int x=0;x<w;x++){
             for(int y=0;y<row+4;y++){
-                //System.out.println(((h-row+2)-y)+row);
+                //System.out.println(((h-row+2)-y)+row); 
                 mainList[x][row-y+4]=listWithoutCurrent()[x][row-y-1+4];
             }
         }
@@ -122,13 +123,43 @@ public class Board{
         for(int i=0;i<filledLines.length;i++){
             if(filledLines[i]){clearLine(i);}
         }
+        if(numFilledLines==0&&lockIn2==true){B2B=0;}
+        score+=computeScore();
+    }
+
+    public int computeScore(){
+        int score2=0;int l=1;if(tspin){if(B2B<1){
+            if(numFilledLines==1){score2=800*l;scoreType="T-Spin Single";}
+            if(numFilledLines==2){score2=1200*l;scoreType="T-Spin Double";}
+            if(numFilledLines==3){score2=1600*l;scoreType="T-Spin Triple";}}else if(B2B>0){
+                if(numFilledLines==2&&(scoreType.equals("T-Spin Double")||scoreType.equals("B2B T-Spin Double")))
+                {score2=1800;scoreType="B2B T-Spin Double";}
+                else if(numFilledLines==3&&(scoreType.equals("T-Spin Triple")||scoreType.equals("B2B T-Spin Triple")))
+                {score2=2400;scoreType="B2B T-Spin Triple";}
+                else if(numFilledLines==1){score2=800;scoreType="T-Spin Single";}
+                else if(numFilledLines==2){score2=1200;scoreType="T-Spin Double";}
+                else if(numFilledLines==3){score2=1600;scoreType="T-Spin Triple";}
+                if(score2>0){score2=(score2+50*B2B)*l;}}
+            else{score2*=l;}}else{if(B2B<1){
+                if(numFilledLines==1){score2=100*l;scoreType="Single";}
+                if(numFilledLines==2){score2=300*l;scoreType="Double";}
+                if(numFilledLines==3){score2=500*l;scoreType="Triple";}
+                if(numFilledLines==4){score2=800*l;scoreType="Tetris";}}else if(B2B>0){
+                if(numFilledLines==4&&(scoreType.equals("Tetris")||scoreType.equals("B2B Tetris"))){
+                    scoreType="B2B Tetris";score2=1200;}
+                else if(numFilledLines==1){score2=100*l;scoreType="Single";}
+                else if(numFilledLines==2){score2=300*l;scoreType="Double";}
+                else if(numFilledLines==3){score2=500*l;scoreType="Triple";}
+                else if(numFilledLines==4){score2=800*l;scoreType="Tetris";}
+                if(score2>0){score2=(score2+50*B2B)*l;}}}
+        if(score2>0&&numFilledLines>0){B2B+=1;System.out.println(scoreType);}if(numFilledLines==0){score2=0;}numFilledLines=0;return score2;
     }
 
     public void lockIn(){
         int[][]modifyArray=currentPiece.getAdjustedArray();
         for(int i=0;i<modifyArray.length;i++){
             mainList[modifyArray[i][0]][modifyArray[i][1]]=currentPiece.pieceNum+1;}
-        heldSwap=false;
+        heldSwap=false;lockIn2=true;
         spawnNewPiece(-1);
         pieceCount+=1;
     }
@@ -146,6 +177,7 @@ public class Board{
 
     public void restart(){
         pieceCount=0;
+        score=0;
         timeStart2=System.nanoTime();
         //pauseFrames=30;
         eraseIndex(-1);
@@ -217,18 +249,20 @@ public class Board{
             for(int i=0;i<activeKick.length;i++){
                 int[][]tempArray=currentPiece.getMovedArray2(0,0,currentPiece.getRotatedArrayKick(currentPiece.rotation,currentPiece.rotation+rotate,i));
                 //tempArray=currentPiece.getRotatedArrayKick(currentPiece.rotation,currentPiece.rotation+rotate,i);
-                System.out.println(tempArray[0][1]+" "+tempArray[1][1]+" "+tempArray[2][1]+" "+tempArray[3][1]);
+                //System.out.println(tempArray[0][1]+" "+tempArray[1][1]+" "+tempArray[2][1]+" "+tempArray[3][1]);
+                
                 if(testValidPosition(tempArray)){
                     currentPiece.move(activeKick[i][0],-activeKick[i][1]);
                     currentPiece.rotate(rotate);
-                    
-                    System.out.println("valid kick");
+                    if(rotate!=0&&currentPiece.pieceNum==5&&!testValidPosition(currentPiece.getMovedArray(0,-1))){tspin=true;}
+                    //System.out.println("valid kick");
+
                     return true;
                     //currentPiece.getRotatedArrayKick(currentPiece.rotation,currentPiece.rotation+rotate,0);
                     //currentPiece.rotate(rotate);
                 }
             }
-        }
+        }if(rotate!=0&&currentPiece.pieceNum==5&&!testValidPosition(currentPiece.getMovedArray(0,-1))){tspin=true;}
         return false;
     }
 

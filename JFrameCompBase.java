@@ -17,7 +17,7 @@ public class JFrameCompBase extends JComponent{
     BufferedImage image,image2,imageOverlay;
     BufferedImage bufferImage,textLayer;
     BufferedImage[]textLayers;
-    Graphics2D[]bufferText;int textCount=3;
+    Graphics2D[]bufferText;int textCount=4;
     Graphics2D bufferG,bufferGText;
     int width;Board board;
     int currentFPS;long framecount=0;
@@ -85,6 +85,7 @@ public class JFrameCompBase extends JComponent{
         texts[0].xpos=topX-140;texts[0].ypos=topY+400;
         texts[1].xpos=topX-140;texts[1].ypos=topY+430;
         texts[2].xpos=topX-140;texts[2].ypos=topY+460;
+        texts[3].xpos=topX-140;texts[3].ypos=topY+200;
         
         //text.getObject().paint(bufferG);
         //text.getObject().setVisible(true);
@@ -95,9 +96,10 @@ public class JFrameCompBase extends JComponent{
     @Override
     public void paintComponent(Graphics g){
         double secondsSinceStart=(System.nanoTime()-board.timeStart2)/1000000000d;
-        texts[0].setText("Score: "+board.pieceCount);
+        texts[0].setText("Score: "+board.score);
         texts[1].setText("PPS: "+Math.round((board.pieceCount/secondsSinceStart)*100d)/100d);
         texts[2].setText("Time: "+Math.round(secondsSinceStart*100d)/100d);
+        if(board.scoreType!=null){texts[3].setText(board.scoreType);}
 
         bufferG.clearRect(0,0,width, height);
         Graphics g3 = g; 
@@ -136,7 +138,6 @@ public class JFrameCompBase extends JComponent{
                 elementList[i].draw(bufferG);}}
         if(imageOver){bufferG.drawImage(imageOverlay,0,0,width,height,null);}
     }
-
 
     public void nextFrame(int mouseX,int mouseY,boolean mouseDown,boolean[]pressedKeys){
         framecount+=1;
