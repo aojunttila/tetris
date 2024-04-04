@@ -149,10 +149,10 @@ public class Board{
                     scoreType="B2B Tetris";score2=1200;}
                 else if(numFilledLines==1){score2=100*l;scoreType="Single";}
                 else if(numFilledLines==2){score2=300*l;scoreType="Double";}
-                else if(numFilledLines==3){score2=500*l;scoreType="Triple";}
+                else if(numFilledLines==3){score2=500*l;scoreType="Triple";} 
                 else if(numFilledLines==4){score2=800*l;scoreType="Tetris";}
                 if(score2>0){score2=(score2+50*B2B)*l;}}}
-        if(score2>0&&numFilledLines>0){B2B+=1;System.out.println(scoreType);}if(numFilledLines==0){score2=0;}numFilledLines=0;return score2;
+        if(score2>0&&numFilledLines>0){B2B+=1;}if(numFilledLines==0){score2=0;}numFilledLines=0;return score2;
     }
 
     public void lockIn(){

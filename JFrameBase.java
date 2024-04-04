@@ -71,7 +71,7 @@ public class JFrameBase extends JFrame{
       Runnable task2=()->{
         comp.repaint();
       };
-      executor2.scheduleAtFixedRate(task2,0,1000/1000,TimeUnit.MILLISECONDS);      
+      executor2.scheduleAtFixedRate(task2,0,1000/60,TimeUnit.MILLISECONDS);      
 
       ///*
     panel.addMouseWheelListener(new MouseWheelListener(){
